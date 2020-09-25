@@ -25,7 +25,7 @@ if (! \function_exists('Waglpz\Webapp\webBase')) {
 if (! \function_exists('Waglpz\Webapp\version')) {
     function version(): string
     {
-        if (\APP_ENV === 'dev') {
+        if (\APP_ENV !== 'prod') {
             return \uniqid('dev');
         }
 
