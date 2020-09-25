@@ -1,0 +1,91 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Waglpz\Webapp\App;
+use Waglpz\Webapp\CliExceptionHandler;
+use Waglpz\Webapp\UI\Cli\CliError;
+
+if (\is_file(__DIR__ . '/../vendor/autoload.php')) {
+    $dir = __DIR__;
+} else {
+    $dir = \dirname(__FILE__, 4);
+}
+include_once $dir . '/../vendor/autoload.php';
+
+(new \Symfony\Component\Dotenv\Dotenv())->bootEnv($dir . '/../.env');
+
+/* phpcs:disable */
+if (! \defined('APP_ENV')) {
+    \define('APP_ENV', $_SERVER['APP_ENV'] ?: 'dev');
+}
+/* phpcs:enable */
+
+$config = include $dir . '/../config/cli.php';
+(new App(include $dir . '/../config/main.php'));
+
+\restore_error_handler();
+\restore_exception_handler();
+
+if (isset($config['exception_handler'])) {
+    // php stan prüfung akzeptiert diese block nur wenn anonyme function boolean returned
+    \set_error_handler(
+        static function ($errorCode, string $errorMessage): bool {
+            throw new \Error($errorMessage, 500);
+        }
+    );
+
+    $exceptionHandlerClass = $config['exception_handler'];
+    $logErrorsDir          = $config['logErrorsDir'] ?? null;
+    $exceptionHandler      = new $exceptionHandlerClass($logErrorsDir);
+    if (! $exceptionHandler instanceof CliExceptionHandler) {
+        throw new \InvalidArgumentException(
+            \sprintf(
+                'Ungültige Exception Handler Class, erwartet "%s"',
+                CliExceptionHandler::class
+            )
+        );
+    }
+
+    \set_exception_handler($exceptionHandler);
+}
+
+$usage = static function (array $config) {
+
+    $executor = isset($_ENV['COMPOSER_BINARY']) ? ' composer waglpz:cli ' : ' php ' . $_SERVER['argv'][0] . ' ';
+    echo \PHP_EOL;
+    echo 'Usage:';
+    echo \PHP_EOL;
+    echo $executor . \implode(\PHP_EOL . $executor, \array_keys($config['commands']));
+    echo \PHP_EOL;
+    exit(1);
+};
+
+if ($_SERVER['argc'] < 2) {
+    $usage($config);
+}
+
+$command = $_SERVER['argv'][1];
+if (! isset($config['commands'][$command])) {
+    $usage($config);
+}
+
+$prependWarn    = \PHP_EOL . '[!] ';
+$prependSuccess = \PHP_EOL . '[+] ';
+$append         = \PHP_EOL . \PHP_EOL;
+
+$commandExecutorClass = $config['commands'][$command]['executor'];
+
+try {
+    echo $prependSuccess . (new $commandExecutorClass($config['commands'][$command]['options']))();
+} catch (CliError $exception) {
+    echo $prependWarn . $exception->getMessage();
+    echo $append;
+    exit($exception->getCode());
+} catch (\Throwable $exception) {
+    if (isset($config['exception_handler'])) {
+        echo $prependWarn . $exception->getMessage() . $append;
+    }
+    throw $exception;
+}
