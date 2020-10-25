@@ -30,7 +30,7 @@ abstract class BaseController
     {
         $getData = $request->getQueryParams();
         if ($request->getMethod() !== 'GET') {
-            if (\strcasecmp($request->getHeaderLine('content-type'), 'application/json') === 0) {
+            if (\strcasecmp($request->getHeaderLine('content-type'), 'application/json') > 0) {
                 $content  = $request->getBody()->getContents();
                 $postData = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
             } else {
