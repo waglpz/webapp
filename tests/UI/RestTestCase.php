@@ -11,10 +11,14 @@ use Psr\Http\Message\ServerRequestInterface;
 
 abstract class RestTestCase extends WebTestCase
 {
-    protected function restGetResponse(string $uri): ResponseInterface
+    /**
+     * @param ?array<mixed> $queryParams
+     */
+    protected function restGetResponse(string $uri, ?array $queryParams = null): ResponseInterface
     {
         $app     = $this->createApp();
         $request = new ServerRequest('GET', $uri, ['content-type' => 'application/json']);
+        $request = $request->withQueryParams($queryParams);
 
         $response = ($app->handleRequest($request))();
         $response->getBody()->rewind();
