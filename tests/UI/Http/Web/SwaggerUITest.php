@@ -6,35 +6,27 @@ namespace Waglpz\Webapp\Tests\UI\Http\Web;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Views\PhpRenderer;
-use Waglpz\Webapp\App;
-use Waglpz\Webapp\ExceptionHandler;
 use Waglpz\Webapp\Tests\UI\WebTestCase;
 use Waglpz\Webapp\UI\Http\Web\SwaggerUI;
 
 final class SwaggerUITest extends WebTestCase
 {
-    /** @test */
+    /**
+     * @throws \JsonException
+     *
+     * @test
+     */
     public function einErrorWirdProduziertWennSchemaFileInvalid(): void
     {
         $this->expectException(\Error::class);
-        $this->expectExceptionMessage('file_get_contents(WRONG): failed to open stream: No such file or directory');
+        $this->expectExceptionMessage('Swagger scheme load failed to open stream: No such file.');
 
-        $config = [
-            'swagger_scheme_file' => 'WRONG',
-            'router'              => static fn () => null,
-            'view'                => [
-                'layout'     => '',
-                'templates'  => '',
-                'attributes' => [],
-            ],
-            'viewHelpers'         => [],
-            'exception_handler'   => new ExceptionHandler(),
-        ];
-        (new App($config));
         $view    = $this->createMock(PhpRenderer::class);
         $request = $this->createMock(ServerRequestInterface::class);
         $request->expects(self::once())->method('getRequestTarget')->willReturn('/doc');
-        $controller = new SwaggerUI($view);
+        $swaggerSchemeFile = 'WRONG';
+
+        $controller = new SwaggerUI($view, $swaggerSchemeFile);
         $controller($request);
     }
 
@@ -51,7 +43,11 @@ final class SwaggerUITest extends WebTestCase
         );
     }
 
-    /** @test */
+    /**
+     * @throws \JsonException
+     *
+     * @test
+     */
     public function schema(): void
     {
         $uri      = '/doc.json';

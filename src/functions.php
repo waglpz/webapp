@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Waglpz\Webapp;
 
+use Dice\Dice;
+use MonologFactory\LoggerFactory;
+use Psr\Log\LoggerInterface;
+
 if (! \function_exists('Waglpz\Webapp\webBase')) {
     function webBase(): string
     {
@@ -13,7 +17,15 @@ if (! \function_exists('Waglpz\Webapp\webBase')) {
         }
 
         if (\PHP_SAPI !== 'cli') {
-            $base = \rtrim(\dirname(\substr($_SERVER['SCRIPT_FILENAME'], -\strlen($_SERVER['PHP_SELF']))), '/');
+            $base = \rtrim(
+                \dirname(
+                    \substr(
+                        $_SERVER['SCRIPT_FILENAME'],
+                        -\strlen($_SERVER['PHP_SELF'])
+                    )
+                ),
+                '/'
+            );
         } else {
             $base = '';
         }
@@ -37,7 +49,9 @@ if (! \function_exists('Waglpz\Webapp\version')) {
         $version = \exec('git describe --always');
         /** @phpstan-var string|bool $version */
         if (! \is_string($version)) {
-            throw new \RuntimeException('Could not gatter version from git history');
+            throw new \RuntimeException(
+                'Could not gatter version from git history'
+            );
         }
 
         return \trim($version);
@@ -69,13 +83,86 @@ if (! \function_exists('Waglpz\Webapp\sortLongestKeyFirst')) {
 
 if (! \function_exists('Waglpz\Webapp\logger')) {
     /** @param array<mixed> $config */
-    function logger(array $config): \Psr\Log\LoggerInterface
+    function logger(array $config, ?string $name = null): LoggerInterface
     {
-        static $logger;
-        if (! isset($logger)) {
-            $logger = (new \MonologFactory\LoggerFactory())->create('default', $config['default']);
+        static $logger = [];
+
+        $name ??= 'default';
+
+        if (! isset($logger[$name])) {
+            $logger[$name] = (new LoggerFactory())->create($name, $config[$name]);
         }
 
-        return $logger;
+        return $logger[$name];
+    }
+}
+
+if (! \function_exists('Waglpz\Webapp\config')) {
+    /** @return mixed */
+    function config(?string $partial = null, ?string $projectRoot = null)
+    {
+        $projectRoot = \Waglpz\Webapp\projectRoot($projectRoot);
+        $config      = include $projectRoot . '/main.php';
+
+        if ($partial !== null && ! isset($config[$partial])) {
+            throw new \InvalidArgumentException(
+                \sprintf(
+                    'Unknown config key given "%s".',
+                    $partial
+                )
+            );
+        }
+
+        return $partial !== null ? $config[$partial] : $config;
+    }
+}
+
+if (! \function_exists('Waglpz\Webapp\projectRoot')) {
+    function projectRoot(?string $projectRoot = null): string
+    {
+        if ($projectRoot === null) {
+            \assert(\defined('PROJECT_CONFIG_DIRECTORY'));
+
+            return \PROJECT_CONFIG_DIRECTORY;
+        }
+
+        return $projectRoot;
+    }
+}
+
+if (! \function_exists('Waglpz\Webapp\container')) {
+    function container(): Container
+    {
+        static $container = null;
+        if ($container !== null) {
+            return $container;
+        }
+
+        if (! \defined('PROJECT_CONFIG_DIRECTORY')) {
+            throw new \Error(
+                'Runtime Constant "PROJECT_CONFIG_DIRECTORY" may not defined as expected.'
+            );
+        }
+
+        $dicRules = include \PROJECT_CONFIG_DIRECTORY . '/dic.rules.php';
+        $dic      = (new Dice())->addRules($dicRules);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $container = new Container($dic);
+
+        return $container;
+    }
+}
+
+if (! \function_exists('Waglpz\Webapp\cliExecutorName')) {
+    function cliExecutorName(): string
+    {
+        static $cliExecutor = null;
+        if ($cliExecutor === null) {
+            $cliExecutor = isset($_SERVER['COMPOSER_HOME'], $_SERVER['COMPOSER_BINARY'])
+                ? ' composer waglpz:cli '
+                : ' php ' . $_SERVER['argv'][0] . ' ';
+        }
+
+        return $cliExecutor;
     }
 }

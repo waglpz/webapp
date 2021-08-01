@@ -6,11 +6,22 @@ namespace Waglpz\Webapp\UI\Http\Web;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Waglpz\Webapp\App;
+use Slim\Views\PhpRenderer;
 use Waglpz\Webapp\BaseController;
 
 final class SwaggerUI extends BaseController
 {
+    private string $swaggerSchemeFile;
+
+    public function __construct(PhpRenderer $view, string $swaggerSchemeFile)
+    {
+        parent::__construct($view);
+        $this->swaggerSchemeFile = $swaggerSchemeFile;
+    }
+
+    /**
+     * @throws \JsonException
+     */
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         $target = $request->getRequestTarget();
@@ -30,11 +41,20 @@ final class SwaggerUI extends BaseController
         return $this->render($model, 200, 'swagger-ui');
     }
 
-    /** @return array<mixed> */
+    /**
+     * @return array<mixed>
+     *
+     * @throws \JsonException
+     */
     private function getSchema(): array
     {
-        $swaggerSchemeFile = App::getConfig('swagger_scheme_file');
-        $swaggerScheme     = \file_get_contents($swaggerSchemeFile);
+        if (! \file_exists($this->swaggerSchemeFile)) {
+            throw new \Error(
+                'Swagger scheme load failed to open stream: No such file.'
+            );
+        }
+
+        $swaggerScheme = \file_get_contents($this->swaggerSchemeFile);
         \assert($swaggerScheme !== false);
 
         return \json_decode($swaggerScheme, true, 512, \JSON_THROW_ON_ERROR);

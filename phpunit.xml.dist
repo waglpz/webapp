@@ -23,6 +23,7 @@
 
     <php>
         <const name="APP_ENV" value="test"/>
+        <const name="PROJECT_CONFIG_DIRECTORY" value="config"/>
     </php>
 
     <filter>

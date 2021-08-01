@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use Waglpz\Webapp\UI\Cli\DbMigrations;
 
-\Locale::setDefault('de_DE.utf8');
+use function Waglpz\Webapp\cliExecutorName;
 
-$executor = isset($_ENV['COMPOSER_BINARY']) ? ' composer waglpz:cli ' : ' php ' . $_SERVER['argv'][0] . ' ';
+\Locale::setDefault('de_DE.utf8');
 
 return [
     'logErrorsDir' => '/tmp',
@@ -16,13 +16,12 @@ return [
         'db:migrations' => [
             'options'  => [
                 'usage'      => [
-                    $executor . 'db:migrations generate',
-                    $executor . 'db:migrations migrate',
+                    cliExecutorName() . 'db:migrations generate',
+                    cliExecutorName() . 'db:migrations migrate',
                 ],
                 'migrations' => __DIR__ . '/../migrations',
             ],
             'executor' => DbMigrations::class,
         ],
-        'generate:password'      => [],
     ],
 ];

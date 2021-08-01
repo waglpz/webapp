@@ -4,85 +4,44 @@ declare(strict_types=1);
 
 namespace Waglpz\Webapp;
 
-use Aidphp\Http\Emitter;
 use FastRoute\Dispatcher;
 use Interop\Http\EmitterInterface;
-use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Views\PhpRenderer;
-use Waglpz\Webapp\Security\Firewall;
 use Waglpz\Webapp\Security\Firewalled;
-
-use function FastRoute\simpleDispatcher;
 
 final class App
 {
-    /** @var array<mixed> */
-    private static array $config;
     private Dispatcher $dispatcher;
-    private PhpRenderer $renderer;
     private EmitterInterface $emitter;
     private Firewalled $firewall;
+    private ContainerInterface $container;
 
-    /**
-     * @param array<mixed> $config
-     */
     public function __construct(
-        array $config,
-        ?Dispatcher $dispatcher = null,
-        ?PhpRenderer $renderer = null,
-        ?EmitterInterface $emitter = null,
-        ?Firewalled $firewall = null
+        Dispatcher $dispatcher,
+        EmitterInterface $emitter,
+        ?Firewalled $firewall = null,
+        ?ExceptionHandlerInvokable $exceptionHandler = null
     ) {
-        self::$config  = $config;
-        $this->emitter = $emitter ?? new Emitter();
+        $this->emitter    = $emitter;
+        $this->dispatcher = $dispatcher;
 
-        if (self::hasConfig('exception_handler')) {
-            // php stan prüfung akzeptiert diese block nur wenn anonyme function boolean returned
-            \set_error_handler(
-                static function ($errorCode, string $errorMessage): bool {
-                    throw new \Error($errorMessage, 500);
-                }
-            );
+        if ($firewall !== null) {
+            $this->firewall = $firewall;
+        }
 
-            $exceptionHandlerClass = self::getConfig('exception_handler');
-            $logErrorsDir          = self::hasConfig('logErrorsDir') ? self::getConfig('logErrorsDir') : null;
-            $exceptionHandler      = new $exceptionHandlerClass($logErrorsDir);
-            if (! $exceptionHandler instanceof ExceptionHandlerInvokable) {
-                throw new \InvalidArgumentException(
-                    \sprintf(
-                        'Ungültige Exception Handler Class, erwartet "%s"',
-                        ExceptionHandler::class
-                    )
-                );
+        if ($exceptionHandler === null) {
+            return;
+        }
+
+        // php stan prüfung akzeptiert diese block nur wenn anonyme function boolean returned
+        \set_error_handler(
+            static function ($errorCode, string $errorMessage): bool {
+                throw new \Error($errorMessage, 500);
             }
-
-            \set_exception_handler($exceptionHandler);
-        }
-
-        $routerConfig     = self::getConfig('router');
-        $viewConfig       = self::getConfig('view');
-        $this->dispatcher = $dispatcher ?? simpleDispatcher($routerConfig);
-
-        if (self::hasConfig('firewall')) {
-            $this->firewall = $firewall ?? new Firewall(self::getConfig('firewall'));
-        }
-
-        if (isset($viewConfig['view_helper_factory'])) {
-            $viewHelpersConfig                   = self::getConfig('viewHelpers');
-            $viewConfig['attributes']['helpers'] = new $viewConfig['view_helper_factory']($viewHelpersConfig);
-        }
-
-        $this->renderer = $renderer ?? new PhpRenderer(
-            $viewConfig['templates'],
-            $viewConfig['attributes'],
-            $viewConfig['layout']
         );
-    }
 
-    public static function hasConfig(string $name): bool
-    {
-        return isset(self::$config[$name]);
+        \set_exception_handler($exceptionHandler);
     }
 
     public function run(ServerRequestInterface $request): void
@@ -94,6 +53,11 @@ final class App
 
         $response = $handler();
         $this->emitter->emit($response);
+    }
+
+    public function setContainer(ContainerInterface $container): void
+    {
+        $this->container = $container;
     }
 
     public function handleRequest(ServerRequestInterface $request): \Closure
@@ -117,7 +81,11 @@ final class App
                     }
                 }
 
-                return fn () => (new $handler($this->renderer))($request);
+                $controller = ($this->container ?? \Waglpz\Webapp\container())->get($handler);
+
+                \assert(\is_callable($controller));
+
+                return static fn () => ($controller)($request);
             }
         } elseif (\count($routeInfo) === 2) {
             [0 => $info, 1 => $allowedMethods] = $routeInfo;
@@ -136,21 +104,5 @@ final class App
         }
 
         throw new \Error('Unbekannter Server Fehler, Router Problem', 500);
-    }
-
-    /** @return mixed */
-    public static function getConfig(?string $partial = null)
-    {
-        if ($partial !== null && ! isset(self::$config[$partial])) {
-            throw new InvalidArgumentException(\sprintf('Unknown config key given "%s".', $partial));
-        }
-
-        if (! isset(self::$config) || \count(self::$config) < 1) {
-            throw new \RuntimeException(
-                'Application config is empty, maybe Application wasn\'t properly instantiated.'
-            );
-        }
-
-        return $partial !== null ? self::$config[$partial] : self::$config;
     }
 }

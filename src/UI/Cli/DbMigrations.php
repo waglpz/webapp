@@ -5,20 +5,19 @@ declare(strict_types=1);
 namespace Waglpz\Webapp\UI\Cli;
 
 use Aura\Sql\ExtendedPdoInterface;
-use Waglpz\Webapp\DbConnection;
 
 final class DbMigrations
 {
-    use DbConnection;
-
     /** @var array<mixed> */
     private array $options;
     private string $argument;
     private string $message;
+    private ExtendedPdoInterface $pdo;
 
     /** @param array<mixed> $options */
-    public function __construct(array $options)
+    public function __construct(ExtendedPdoInterface $pdo, array $options)
     {
+        $this->pdo     = $pdo;
         $this->options = $options;
         $this->check();
     }
@@ -83,11 +82,11 @@ final class DbMigrations
     }
 
     /** @return array<mixed> */
-    private function newMigrations(ExtendedPdoInterface $db): array
+    private function newMigrations(): array
     {
         $directoryIterator = new \DirectoryIterator($this->options['migrations']);
         $allMigrations     = $this->allMigrations($directoryIterator);
-        $oldMigrations     = $db->fetchCol('SELECT migration FROM __migrations ORDER BY migration');
+        $oldMigrations     = $this->pdo->fetchCol('SELECT migration FROM __migrations ORDER BY migration');
 
         $newMigrations = \array_filter(
             $allMigrations,
@@ -110,34 +109,36 @@ final class DbMigrations
         }
     }
 
+    /**
+     * @throws \Throwable
+     */
     protected function migrate(): void
     {
-        $db              = $this->getConnection();
         $affectedRows    = 0;
         $insertMigration = 0;
 
-        $newMigrations = $this->newMigrations($db);
+        $newMigrations = $this->newMigrations();
         if (\count($newMigrations) < 1) {
             $message = 'Nothing to do, no new migrations to execute.';
 
             throw new CliError($message);
         }
 
-        $db->beginTransaction();
+        $this->pdo->beginTransaction();
 
         try {
             foreach ($newMigrations as $migrationTime => $migration) {
-                $affectedRows    += $db->fetchAffected($migration['up']);
+                $affectedRows    += $this->pdo->fetchAffected($migration['up']);
                 $stmt             = 'INSERT INTO __migrations (migration) VALUES (' . $migrationTime . ')';
-                $insertMigration += $db->exec($stmt);
+                $insertMigration += $this->pdo->exec($stmt);
             }
 
-            $db->commit();
+            $this->pdo->commit();
             $this->message  = 'Result migrations:' . \PHP_EOL;
             $this->message .= '  Affected rows #' . $affectedRows . \PHP_EOL;
             $this->message .= '  Applied migrations #' . $insertMigration . \PHP_EOL;
         } catch (\Throwable $exception) {
-            $db->rollBack();
+            $this->pdo->rollBack();
 
             throw $exception;
         }

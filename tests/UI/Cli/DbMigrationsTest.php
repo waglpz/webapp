@@ -28,8 +28,8 @@ class DbMigrationsTest extends TestCase
         $connection->expects(self::never())->method('commit');
         $connection->expects(self::never())->method('rollBack');
 
-        $command = new DbMigrations($options);
-        $command->setConnection($connection);
+        $command = new DbMigrations($connection, $options);
+
         $_SERVER['argv'][2] = 'migrate';
 
         $this->expectException(\Error::class);
@@ -40,14 +40,15 @@ class DbMigrationsTest extends TestCase
     /** @test */
     public function check(): void
     {
-        $options = [
+        $options    = [
             'migrations' => '',
             'usage'      => [],
         ];
+        $connection = $this->createMock(ExtendedPdoInterface::class);
 
         $this->expectException(\Error::class);
         $this->expectExceptionMessage('Migration directory not writeable or does not exists "".');
-        (new DbMigrations($options))();
+        (new DbMigrations($connection, $options))();
     }
 
     /** @test */
@@ -72,8 +73,8 @@ class DbMigrationsTest extends TestCase
         $connection->expects(self::once())->method('commit');
         $connection->expects(self::never())->method('rollBack');
 
-        $command = new DbMigrations($options);
-        $command->setConnection($connection);
+        $command = new DbMigrations($connection, $options);
+
         $_SERVER['argv'][2] = 'migrate';
 
         $output = $command()->__toString();
@@ -108,8 +109,7 @@ class DbMigrationsTest extends TestCase
         $connection->expects(self::never())->method('commit');
         $connection->expects(self::once())->method('rollBack');
 
-        $command = new DbMigrations($options);
-        $command->setConnection($connection);
+        $command            = new DbMigrations($connection, $options);
         $_SERVER['argv'][2] = 'migrate';
 
         $this->expectException(\Throwable::class);
@@ -120,12 +120,14 @@ class DbMigrationsTest extends TestCase
     /** @test */
     public function generateNewMigration(): void
     {
-        $options            = [
+        $options    = [
             'migrations' => '/tmp',
             'usage'      => [],
         ];
+        $connection = $this->createMock(ExtendedPdoInterface::class);
+
         $_SERVER['argv'][2] = 'generate';
-        (new DbMigrations($options))();
+        (new DbMigrations($connection, $options))();
         self::assertFileExists('/tmp/migration-' . \time() . '-up.sql');
         self::assertFileExists('/tmp/migration-' . \time() . '-down.sql');
     }
@@ -133,28 +135,32 @@ class DbMigrationsTest extends TestCase
     /** @test */
     public function nochNichtImplementierteMethode(): void
     {
-        $options            = [
+        $options    = [
             'migrations' => '/tmp',
             'usage'      => [],
         ];
+        $connection = $this->createMock(ExtendedPdoInterface::class);
+
         $_SERVER['argv'][2] = 'up';
 
         $this->expectException(\BadMethodCallException::class);
         $this->expectExceptionMessage('Method "up" not yet implemented.');
-        (new DbMigrations($options))();
+        (new DbMigrations($connection, $options))();
     }
 
     /** @test */
     public function usageWirdAnzeigt(): void
     {
-        $options            = [
+        $options    = [
             'migrations' => '/tmp',
             'usage'      => [],
         ];
+        $connection = $this->createMock(ExtendedPdoInterface::class);
+
         $_SERVER['argv'][2] = 'wrong';
 
         $this->expectException(CliError::class);
         $this->expectExceptionMessageMatches('/Usage:/');
-        (new DbMigrations($options))();
+        (new DbMigrations($connection, $options))();
     }
 }
