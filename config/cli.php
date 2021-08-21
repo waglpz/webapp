@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Waglpz\Webapp\UI\Cli\DbMigrations;
+use Waglpz\Webapp\UI\Cli\DbReset;
 
 use function Waglpz\Webapp\cliExecutorName;
 
@@ -22,6 +23,10 @@ return [
                 'migrations' => __DIR__ . '/../migrations',
             ],
             'executor' => DbMigrations::class,
+        ],
+        'db:reset'         => [
+            'options'  => [],
+            'executor' => DbReset::class,
         ],
     ],
 ];

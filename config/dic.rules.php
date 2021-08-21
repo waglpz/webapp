@@ -17,6 +17,7 @@ use Waglpz\Webapp\ExceptionHandler;
 use Waglpz\Webapp\ExceptionHandlerInvokable;
 use Waglpz\Webapp\Security\Firewalled;
 use Waglpz\Webapp\UI\Cli\DbMigrations;
+use Waglpz\Webapp\UI\Cli\DbReset;
 use Waglpz\Webapp\UI\Http\Web\SwaggerUI;
 
 use function FastRoute\simpleDispatcher;
@@ -40,6 +41,12 @@ return [
         ],
     ],
     DbMigrations::class              => [
+        'shared'          => true,
+        'constructParams' => [
+            (include projectRoot() . '/cli.php')['commands']['db:migrations']['options'],
+        ],
+    ],
+    DbReset::class              => [
         'shared'          => true,
         'constructParams' => [
             (include projectRoot() . '/cli.php')['commands']['db:migrations']['options'],
