@@ -6,6 +6,13 @@ declare(strict_types=1);
 
 return [
     'apiVersion'          => '0.1.0',
+    'anonymizeLog' => [
+        '_SERVER' => [
+            'DB_PASSWD' => '*****',
+            'DB_USER' => '*****',
+        ],
+        '_POST' => [/* set here necessary keys wich should be anonymized in log*/],
+    ],
     'logErrorsDir'        => '/tmp',
     'router'              => include 'router.php',
     'db'                  => [

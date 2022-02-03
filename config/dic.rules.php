@@ -55,7 +55,7 @@ return [
     '$DefaultExceptionHandler' => [
         'shared'          => true,
         'instanceOf'      => ExceptionHandler::class,
-        'constructParams' => [config('logErrorsDir')],
+        'constructParams' => [config('logErrorsDir'), config('anonymizeLog')],
     ],
     ServerRequestInterface::class    => [
         'shared'     => true,
