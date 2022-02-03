@@ -10,24 +10,42 @@ PHP 7.4 or higher (see composer json)
 
 composer require waglpz/webapp
 
-###### Example index.php
+###### Example `public/index.php` for testing in browser
 
-  ```php
-      /* phpcs:disable */
-      if (! \defined('APP_ENV')) {
-          \define('APP_ENV', \getenv('APP_ENV') ?? 'dev');
-      }
-      /* phpcs:enable */
-      
-      require __DIR__ . '/vendor/autoload.php';
-      
-      use Aidphp\Http\ServerRequestFactory;
-      use Waglpz\Webapp\App;
-      
-      $request = (new ServerRequestFactory())->createServerRequestFromGlobals();
-      $config  = include \dirname(__DIR__) . '/config/main.php';
-      $app     = new App($config);
-      $app->run($request);
+```php
+
+<?php
+
+declare(strict_types=1);
+
+/**
+* when testing wepapp then create /public Directory as DocumentRoot and insert index.php
+*/
+
+use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\Dotenv\Dotenv;
+use Waglpz\Webapp\App;
+
+use function Waglpz\Webapp\container;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+const PROJECT_CONFIG_DIRECTORY = __DIR__ . '/../config';
+
+(new Dotenv())->bootEnv(__DIR__ . '/../.env');
+
+/* phpcs:disable */
+if (! \defined('APP_ENV')) {
+    \define('APP_ENV', $_SERVER['APP_ENV'] ?? 'dev');
+}
+/* phpcs:enable */
+
+$container = container();
+$app       = $container->get(App::class);
+$request   = $container->get(ServerRequestInterface::class);
+\assert($app instanceof App && $request instanceof ServerRequestInterface);
+$app->run($request);
+
   ```
 
 ## Docker
@@ -50,6 +68,20 @@ docker run --user $(id -u):$(id -g) --rm -ti -v $PWD:/app -v $PWD/.docker/ waglp
 
 docker run \
 --user $(id -u):$(id -g) \
+--rm \
+-ti \
+-v $PWD:/app \
+-v $PWD/.docker/ \
+-v $PWD/.docker/php/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini \
+waglpz/webapp bash 
+
+```
+
+### Start container with bash and xdebug as root user eg to install apt get packet
+
+```bash
+
+docker run \
 --rm \
 -ti \
 -v $PWD:/app \
