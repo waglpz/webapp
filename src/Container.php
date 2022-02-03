@@ -20,6 +20,7 @@ class Container implements ContainerInterface
     public function get(string $id): object
     {
         if ($this->has($id)) {
+            /** @phpstan-var class-string $id */
             return $this->dice->create($id);
         }
 
