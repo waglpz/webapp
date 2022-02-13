@@ -34,6 +34,23 @@ if (! \function_exists('Waglpz\Webapp\webBase')) {
     }
 }
 
+if (! \function_exists('Waglpz\Webapp\releasedAt')) {
+    function releasedAt(): string
+    {
+        $lastTagInfo = \exec('git describe --always');
+
+        if (\APP_ENV !== 'prod') {
+            $lastCommitInfo = \exec('git log --date=short --pretty="%h %ad %s" | head -1');
+        } else {
+            // HEAD date 2022-02-12
+            $lastCommitInfo = \exec('git log --date=short --pretty="%ad" | head -1');
+        }
+
+        // $lastTagInfo eg: v1.1.3-14-g9b3745b explain: Tag name-amount of commits after tag-tag hash
+        return $lastTagInfo . \PHP_EOL . '(' . $lastCommitInfo . ')';
+    }
+}
+
 if (! \function_exists('Waglpz\Webapp\version')) {
     function version(): string
     {
