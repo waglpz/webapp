@@ -21,7 +21,7 @@ final class DbReset
     public function __invoke(): void
     {
         if (\APP_ENV === 'prod') {
-            echo 'Reset DB in PRODUCTION not Allowed!';
+            echo 'Reset DB in PRODUCTION not allowed!';
             echo \PHP_EOL;
 
             return;
@@ -29,30 +29,24 @@ final class DbReset
 
         $this->pdo->beginTransaction();
         try {
-            $finder = new \DirectoryIterator($this->migrations);
-            $files  = [];
-            /** @phpstan-var \SplFileInfo $file */
-            foreach ($finder as $file) {
-                if (\strpos($file->getBasename(), '-down.sql') === false) {
+            $this->pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+            $tables = $this->pdo->yieldCol('SHOW TABLES');
+
+            foreach ($tables as $table) {
+                if ($table === '__migrations') {
                     continue;
                 }
 
-                $files[] = $file->getBasename();
+                $this->pdo->fetchAffected(\sprintf('DROP TABLE IF EXISTS `%s`', $table));
             }
 
-            \rsort($files);
-
-            foreach ($files as $file) {
-                $stmt = \file_get_contents($this->migrations . '/' . $file);
-                \assert(\is_string($stmt));
-                $this->pdo->fetchAffected($stmt);
-            }
-
-            echo 'Dropped Tables' . \PHP_EOL;
+            echo 'Dropped Tables.' . \PHP_EOL;
             $this->pdo->fetchAffected('TRUNCATE __migrations');
+            $this->pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+
             $this->pdo->commit();
             echo 'Reset migrations.' . \PHP_EOL;
-            echo 'Database was reset successfully.';
+            echo 'Database was successfully reseted.';
             echo \PHP_EOL;
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
