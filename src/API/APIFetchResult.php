@@ -47,7 +47,7 @@ final class APIFetchResult
 
         if ((200 <= $status) && ($status <= 299)) {
             $new->status = self::OK;
-            $new->data   = $data;
+            $new->data   = (array) $data;
 
             return $new;
         }
@@ -60,7 +60,7 @@ final class APIFetchResult
             throw new \UnexpectedValueException('Status "%d" was unexpected.');
         }
 
-        $new->apiProblem = APIProblem::fromArray($data);
+        $new->apiProblem = APIProblem::fromArray((array) $data);
 
         return $new;
     }

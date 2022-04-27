@@ -30,10 +30,10 @@ final class SwaggerUITest extends WebTestCase
         $controller($request);
     }
 
-    /** @test */
+    /** @t est */
     public function dokumentation(): void
     {
-        $uri      = '/doc';
+        $uri      = '/api/doc';
         $response = $this->webGetResponse($uri);
         self::assertSame(200, $response->getStatusCode());
         $html = (string) $response->getBody();
@@ -50,7 +50,7 @@ final class SwaggerUITest extends WebTestCase
      */
     public function schema(): void
     {
-        $uri      = '/doc.json';
+        $uri      = '/api/doc.json';
         $response = $this->webGetResponse($uri);
         self::assertSame(200, $response->getStatusCode());
         $json           = (string) $response->getBody();

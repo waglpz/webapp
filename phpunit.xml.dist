@@ -8,6 +8,15 @@
          cacheResult="false"
          bootstrap="vendor/autoload.php"
          verbose="true">
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+        <report>
+            <html outputDirectory=".build-output/coverage"/>
+            <text outputFile="php://stdout" showOnlySummary="true"/>
+        </report>
+    </coverage>
     <testsuites>
         <testsuite name="all">
             <directory>tests</directory>

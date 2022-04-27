@@ -9,13 +9,10 @@ use Aura\Sql\ExtendedPdoInterface;
 final class DbReset
 {
     private ExtendedPdoInterface $pdo;
-    private string $migrations;
 
-    /** @param array<string> $options */
-    public function __construct(ExtendedPdoInterface $pdo, array $options)
+    public function __construct(ExtendedPdoInterface $pdo)
     {
-        $this->migrations = $options['migrations'];
-        $this->pdo        = $pdo;
+        $this->pdo = $pdo;
     }
 
     public function __invoke(): void
@@ -37,6 +34,7 @@ final class DbReset
                     continue;
                 }
 
+                \assert(\is_string($table));
                 $this->pdo->fetchAffected(\sprintf('DROP TABLE IF EXISTS `%s`', $table));
             }
 
@@ -46,7 +44,7 @@ final class DbReset
 
             $this->pdo->commit();
             echo 'Reset migrations.' . \PHP_EOL;
-            echo 'Database was successfully reseted.';
+            echo 'Database reset was successfully done.';
             echo \PHP_EOL;
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();

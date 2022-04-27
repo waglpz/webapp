@@ -122,9 +122,3 @@ To check all violations at once, run
 ```
 composer check
 ```
-
-
-
-
-
-

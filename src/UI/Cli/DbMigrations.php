@@ -8,17 +8,25 @@ use Aura\Sql\ExtendedPdoInterface;
 
 final class DbMigrations
 {
-    /** @var array<mixed> */
-    private array $options;
     private string $argument;
     private string $message;
     private ExtendedPdoInterface $pdo;
+    /** @var array<string> */
+    private array $usage;
+    private string $migrationsDir;
 
     /** @param array<mixed> $options */
     public function __construct(ExtendedPdoInterface $pdo, array $options)
     {
-        $this->pdo     = $pdo;
-        $this->options = $options;
+        $this->pdo = $pdo;
+        \assert(isset($options['usage']));
+        /** @phpstan-var array<string> $usage */
+        $usage       = $options['usage'];
+        $this->usage = $usage;
+
+        \assert(isset($options['migrations']) && \is_string($options['migrations']));
+        $this->migrationsDir = $options['migrations'];
+
         $this->check();
     }
 
@@ -29,7 +37,7 @@ final class DbMigrations
             . \PHP_EOL;
         $message .= 'Usage:';
         $message .= \PHP_EOL;
-        $message .= '  ' . \implode(\PHP_EOL . '  ', $this->options['usage']);
+        $message .= '  ' . \implode(\PHP_EOL . '  ', $this->usage);
 
         throw new CliError($message);
     }
@@ -62,7 +70,7 @@ final class DbMigrations
         return $this;
     }
 
-    /** @return array<mixed> */
+    /** @return array<string, array<string,string>> */
     private function allMigrations(\DirectoryIterator $directoryIterator): array
     {
         $allMigrations = [];
@@ -74,23 +82,24 @@ final class DbMigrations
             $fileName = $file->getBasename('.sql');
 
             [$prefix, $time, $operation] = \explode('-', $fileName);
-
-            $allMigrations[$time][$operation] = \file_get_contents($file->getPathname());
+            $stmt                        = \file_get_contents($file->getPathname());
+            \assert(\is_string($stmt));
+            $allMigrations[$time][$operation] = $stmt;
         }
 
         return $allMigrations;
     }
 
-    /** @return array<mixed> */
+    /** @return array<string, array<string,string>> */
     private function newMigrations(): array
     {
-        $directoryIterator = new \DirectoryIterator($this->options['migrations']);
+        $directoryIterator = new \DirectoryIterator($this->migrationsDir);
         $allMigrations     = $this->allMigrations($directoryIterator);
         $oldMigrations     = $this->pdo->fetchCol('SELECT migration FROM __migrations ORDER BY migration');
 
         $newMigrations = \array_filter(
             $allMigrations,
-            static fn ($migrationTime) => ! \in_array((string) $migrationTime, $oldMigrations, true),
+            static fn ($migrationTime) => ! \in_array('' . $migrationTime, $oldMigrations, true),
             \ARRAY_FILTER_USE_KEY
         );
 
@@ -101,9 +110,8 @@ final class DbMigrations
 
     private function check(): void
     {
-        $migrationsDir = $this->options['migrations'] ?? '';
-        if (! \is_dir($migrationsDir) || ! \is_writable($migrationsDir)) {
-            $message = 'Migration directory not writeable or does not exists "' . $migrationsDir . '".';
+        if (! \is_dir($this->migrationsDir) || ! \is_writable($this->migrationsDir)) {
+            $message = 'Migration directory not writeable or does not exists "' . $this->migrationsDir . '".';
 
             throw new CliError($message);
         }
@@ -121,7 +129,9 @@ final class DbMigrations
         if (\count($newMigrations) < 1) {
             $message = 'Nothing to do, no new migrations to execute.';
 
-            throw new CliError($message);
+            echo $message . \PHP_EOL;
+
+            return;
         }
 
         $this->pdo->beginTransaction();
@@ -149,10 +159,10 @@ final class DbMigrations
         $time          = \time();
         $this->message = 'Created migration files:' . \PHP_EOL;
         $fileName      = 'migration-' . $time . '-up.sql';
-        \touch($this->options['migrations'] . '/' . $fileName);
+        \touch($this->migrationsDir . '/' . $fileName);
         $this->message .= '  "' . $fileName . '"' . \PHP_EOL;
         $fileName       = 'migration-' . $time . '-down.sql';
-        \touch($this->options['migrations'] . '/' . $fileName);
+        \touch($this->migrationsDir . '/' . $fileName);
         $this->message .= '  "' . $fileName . '"' . \PHP_EOL;
     }
 

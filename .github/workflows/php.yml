@@ -38,11 +38,5 @@ jobs:
 
 
 
-    - name: Run Code style check
-      run: composer run-script waglpz:cs-check
-      
-    - name: Run Static analyser check
-      run: composer run-script waglpz:analyse
-      
-    - name: Run Unit tests
-      run: composer run-script waglpz:test
+    - name: Run Vitality Check
+      run: composer run-script waglpz:check:ci

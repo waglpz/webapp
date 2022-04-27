@@ -11,6 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Views\PhpRenderer;
 use Waglpz\Webapp\BaseController;
+use Waglpz\Webapp\WebController;
 
 final class BaseControllerTest extends TestCase
 {
@@ -19,7 +20,7 @@ final class BaseControllerTest extends TestCase
     {
         $view = $this->createMock(PhpRenderer::class);
         $view->expects(self::once())->method('setLayout')->with('new-layout.phtml');
-        $baseController = new class ($view) extends BaseController {
+        $baseController = new class ($view) extends WebController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response();
@@ -33,7 +34,7 @@ final class BaseControllerTest extends TestCase
     {
         $view = $this->createMock(PhpRenderer::class);
         $view->expects(self::once())->method('setLayout')->with('');
-        $baseController = new class ($view) extends BaseController {
+        $baseController = new class ($view) extends WebController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response();
@@ -45,10 +46,8 @@ final class BaseControllerTest extends TestCase
     /** @test */
     public function jsonResponse(): void
     {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $view    = $this->createMock(PhpRenderer::class);
-        $view->expects(self::once())->method('setLayout')->with('');
-        $baseController = new class ($view) extends BaseController {
+        $request        = $this->createMock(ServerRequestInterface::class);
+        $baseController = new class extends BaseController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 $data = ['a' => 'b', 'c' => ['d' => 'e']];
@@ -85,7 +84,7 @@ final class BaseControllerTest extends TestCase
                      'trace'   => 'Error Trace ist ausgeschaltet.',
                  ]
              )->willReturnArgument(0);
-        $baseController = new class ($view) extends BaseController {
+        $baseController = new class ($view) extends WebController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 return $this->renderError('Error message', 'trace', 500);
@@ -99,7 +98,6 @@ final class BaseControllerTest extends TestCase
     /** @test */
     public function getDataFromJsonRequest(): void
     {
-        $view    = $this->createMock(PhpRenderer::class);
         $request = $this->createMock(ServerRequestInterface::class);
         $request->expects(self::once())->method('getMethod')->willReturn('POST');
         $request->expects(self::once())->method('getQueryParams')->willReturn(['q' => 'q1', 'mix' => 'qMix']);
@@ -110,7 +108,7 @@ final class BaseControllerTest extends TestCase
         $jsonPayload   = \json_encode(['p' => 'p1', 'mix' => 'pMix'], \JSON_THROW_ON_ERROR);
         $streamContent->expects(self::once())->method('getContents')->willReturn($jsonPayload);
         $request->expects(self::once())->method('getBody')->willReturn($streamContent);
-        $baseController = new class ($view) extends BaseController {
+        $baseController = new class extends BaseController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response();
@@ -130,7 +128,6 @@ final class BaseControllerTest extends TestCase
     /** @test */
     public function getDataFromJsonUtf8Request(): void
     {
-        $view    = $this->createMock(PhpRenderer::class);
         $request = $this->createMock(ServerRequestInterface::class);
         $request->expects(self::once())->method('getMethod')->willReturn('POST');
         $request->expects(self::once())->method('getQueryParams')->willReturn([]);
@@ -141,7 +138,7 @@ final class BaseControllerTest extends TestCase
         $jsonPayload   = \json_encode(['p' => 'p1'], \JSON_THROW_ON_ERROR);
         $streamContent->expects(self::once())->method('getContents')->willReturn($jsonPayload);
         $request->expects(self::once())->method('getBody')->willReturn($streamContent);
-        $baseController = new class ($view) extends BaseController {
+        $baseController = new class extends BaseController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response();
@@ -161,7 +158,6 @@ final class BaseControllerTest extends TestCase
     /** @test */
     public function getDataFromRequest(): void
     {
-        $view    = $this->createMock(PhpRenderer::class);
         $request = $this->createMock(ServerRequestInterface::class);
         $request->expects(self::once())->method('getMethod')->willReturn('POST');
         $request->expects(self::once())->method('getQueryParams')->willReturn(['q' => 'q1', 'mix' => 'qMix']);
@@ -170,7 +166,7 @@ final class BaseControllerTest extends TestCase
                 ->willReturn('multipart/form-data');
 
         $request->expects(self::once())->method('getParsedBody')->willReturn(['p' => 'p1', 'mix' => 'pMix']);
-        $baseController = new class ($view) extends BaseController {
+        $baseController = new class extends BaseController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response();
@@ -188,16 +184,15 @@ final class BaseControllerTest extends TestCase
     }
 
     /** @test */
-    public function getDataFromRequestGetOnlyPresent(): void
+    public function getDataFromRequestGetMethodOnlyPresent(): void
     {
-        $view    = $this->createMock(PhpRenderer::class);
         $request = $this->createMock(ServerRequestInterface::class);
         $request->expects(self::once())->method('getMethod')->willReturn('GET');
         $request->expects(self::once())->method('getQueryParams')->willReturn(['a' => 'b']);
         $request->expects(self::never())->method('getHeaderLine');
         $request->expects(self::never())->method('getParsedBody');
 
-        $baseController = new class ($view) extends BaseController {
+        $baseController = new class extends BaseController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface
             {
                 return new Response();

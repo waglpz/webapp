@@ -16,6 +16,7 @@ final class PingTest extends RestTestCase
         self::assertSame(200, $response->getStatusCode());
         $json = (string) $response->getBody();
         $data = \json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+        \assert(\is_array($data));
         self::assertArrayHasKey('time', $data);
         self::assertArrayHasKey('apiVersion', $data);
     }

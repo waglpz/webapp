@@ -32,8 +32,7 @@ class DbMigrationsTest extends TestCase
 
         $_SERVER['argv'][2] = 'migrate';
 
-        $this->expectException(\Error::class);
-        $this->expectExceptionMessage('Nothing to do, no new migrations to execute.');
+        $this->expectOutputString('Nothing to do, no new migrations to execute.' . \PHP_EOL);
         $command();
     }
 

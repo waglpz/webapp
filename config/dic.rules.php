@@ -15,7 +15,6 @@ use Psr\Log\LoggerInterface;
 use Slim\Views\PhpRenderer;
 use Waglpz\Webapp\ExceptionHandler;
 use Waglpz\Webapp\ExceptionHandlerInvokable;
-use Waglpz\Webapp\Security\Firewalled;
 use Waglpz\Webapp\UI\Cli\DbMigrations;
 use Waglpz\Webapp\UI\Cli\DbReset;
 use Waglpz\Webapp\UI\Http\Web\SwaggerUI;
@@ -25,71 +24,92 @@ use function Waglpz\Webapp\config;
 use function Waglpz\Webapp\projectRoot;
 
 return [
-    '*'                              => [
+    '*'                           => [
         'substitutions' => [
             ExtendedPdoInterface::class      => '$DefaultPDO',
             Dispatcher::class                => [
                 Dice::INSTANCE => static function (): Dispatcher {
-                    return simpleDispatcher(config('router'));
+                    $routerCollector = config('router');
+                    \assert(\is_callable($routerCollector));
+
+                    return simpleDispatcher($routerCollector);
                 },
             ],
             PhpRenderer::class               => '$DefaultViewRenderer',
             EmitterInterface::class          => Emitter::class,
             LoggerInterface::class           => '$DefaultLogger',
-            Firewalled::class                => null,
             ExceptionHandlerInvokable::class => '$DefaultExceptionHandler',
         ],
     ],
-    DbMigrations::class              => [
+    DbMigrations::class           => [
         'shared'          => true,
         'constructParams' => [
             (include projectRoot() . '/cli.php')['commands']['db:migrations']['options'],
         ],
     ],
-    DbReset::class              => [
+    DbReset::class                => [
         'shared'          => true,
         'constructParams' => [
             (include projectRoot() . '/cli.php')['commands']['db:migrations']['options'],
         ],
     ],
-    '$DefaultExceptionHandler' => [
+    '$DefaultExceptionHandler'    => [
         'shared'          => true,
         'instanceOf'      => ExceptionHandler::class,
         'constructParams' => [config('logErrorsDir'), config('anonymizeLog')],
     ],
-    ServerRequestInterface::class    => [
+    ServerRequestInterface::class => [
         'shared'     => true,
         'instanceOf' => ServerRequestFactory::class,
         'call'       => [['createServerRequestFromGlobals', [], Dice::CHAIN_CALL]],
     ],
-    '$DefaultViewRenderer'           => [
+    '$DefaultViewRenderer'        => [
         'shared'          => true,
         'instanceOf'      => PhpRenderer::class,
         'constructParams' => [
+            /** @phpstan-ignore-next-line */
             config('view')['templates'],
+            /** @phpstan-ignore-next-line */
             config('view')['attributes'],
+            /** @phpstan-ignore-next-line */
             config('view')['layout'],
         ],
     ],
-    '$DefaultPDO'                    => [
+    '$DefaultPDO'                 => [
         'shared'          => true,
         'instanceOf'      => ExtendedPdo::class,
         'constructParams' => [
+            /** @phpstan-ignore-next-line */
             config('db')['dsn'],
+            /** @phpstan-ignore-next-line */
             config('db')['username'],
+            /** @phpstan-ignore-next-line */
             config('db')['password'],
+            /** @phpstan-ignore-next-line */
             config('db')['options'] ?? null,
+            /** @phpstan-ignore-next-line */
             config('db')['queries'] ?? null,
+            /** @phpstan-ignore-next-line */
             config('db')['profiler'] ?? null,
         ],
     ],
-    '$DefaultLogger'                 => [
+    '$DefaultLogger'              => [
         'shared'     => true,
         'instanceOf' => LoggerFactory::class,
-        'call'       => [['create', ['default', config('logger')['default']], Dice::CHAIN_CALL]],
+        'call'       => [
+            [
+                'create',
+                [
+                    'default',
+                    /** @phpstan-ignore-next-line */
+                    config('logger')['default'],
+                ],
+                Dice::CHAIN_CALL,
+            ],
+        ],
     ],
     // Controllers with specific params
-    SwaggerUI::class                 => [
+    SwaggerUI::class              => [
         'shared'          => true,
         'constructParams' => [config('swagger_scheme_file')],
     ],

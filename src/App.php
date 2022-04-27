@@ -8,27 +8,20 @@ use FastRoute\Dispatcher;
 use Interop\Http\EmitterInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Waglpz\Webapp\Security\Firewalled;
 
 final class App
 {
     private Dispatcher $dispatcher;
     private EmitterInterface $emitter;
-    private Firewalled $firewall;
     private ContainerInterface $container;
 
     public function __construct(
         Dispatcher $dispatcher,
         EmitterInterface $emitter,
-        ?Firewalled $firewall = null,
         ?ExceptionHandlerInvokable $exceptionHandler = null
     ) {
         $this->emitter    = $emitter;
         $this->dispatcher = $dispatcher;
-
-        if ($firewall !== null) {
-            $this->firewall = $firewall;
-        }
 
         if ($exceptionHandler === null) {
             return;
@@ -46,11 +39,7 @@ final class App
 
     public function run(ServerRequestInterface $request): void
     {
-        $handler = $this->handleRequest($request);
-        if (isset($this->firewall)) {
-            $this->firewall->checkRules($request);
-        }
-
+        $handler  = $this->handleRequest($request);
         $response = $handler();
         $this->emitter->emit($response);
     }

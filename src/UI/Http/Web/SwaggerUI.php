@@ -7,9 +7,9 @@ namespace Waglpz\Webapp\UI\Http\Web;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Views\PhpRenderer;
-use Waglpz\Webapp\BaseController;
+use Waglpz\Webapp\WebController;
 
-final class SwaggerUI extends BaseController
+final class SwaggerUI extends WebController
 {
     private string $swaggerSchemeFile;
 
@@ -57,6 +57,7 @@ final class SwaggerUI extends BaseController
         $swaggerScheme = \file_get_contents($this->swaggerSchemeFile);
         \assert($swaggerScheme !== false);
 
+        /** @phpstan-ignore-next-line */
         return \json_decode($swaggerScheme, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

@@ -26,7 +26,7 @@ final class AppErrorHandleTest extends TestCase
         $this->expectException(\Error::class);
         $this->expectExceptionMessage('Test Error');
 
-        (new App($dispatcher, $emitter, null, $exceptionHandler));
+        (new App($dispatcher, $emitter, $exceptionHandler));
         \trigger_error('Test Error');
     }
 

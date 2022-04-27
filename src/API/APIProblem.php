@@ -10,17 +10,22 @@ final class APIProblem
     private string $type;
     private string $title;
     private string $detail;
-    /** @var array<self>  */
+    /** @var array<self> */
     private array $problems;
 
     private function __construct()
     {
     }
 
-    /** @param array<string, mixed> $data */
+    /** @param array<string,mixed> $data */
     public static function fromArray(array $data): self
     {
-        $new         = new self();
+        $new = new self();
+        \assert($data['type'] === null || \is_string($data['type']));
+        \assert($data['title'] === null || \is_string($data['title']));
+        \assert($data['detail'] === null || \is_string($data['detail']));
+        \assert($data['status'] === null || \is_int($data['status']));
+
         $new->type   = $data['type'] ?? '';
         $new->title  = $data['title'] ?? '';
         $new->status = $data['status'] ?? 0;
@@ -40,9 +45,9 @@ final class APIProblem
     public function toArray(): array
     {
         $data = [
-            'type'    => $this->type,
-            'title'   => $this->title,
-            'status'  => $this->status,
+            'type'   => $this->type,
+            'title'  => $this->title,
+            'status' => $this->status,
             'detail' => $this->detail,
         ];
 

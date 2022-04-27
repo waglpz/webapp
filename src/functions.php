@@ -106,7 +106,7 @@ if (! \function_exists('Waglpz\Webapp\logger')) {
 
         $name ??= 'default';
 
-        if (! isset($logger[$name])) {
+        if (! isset($logger[$name]) && \is_array($config[$name])) {
             $logger[$name] = (new LoggerFactory())->create($name, $config[$name]);
         }
 
