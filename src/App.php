@@ -70,6 +70,10 @@ final class App
                     }
                 }
 
+                if (\is_callable($handler)) {
+                    return static fn () => ($handler)($request);
+                }
+
                 $controller = ($this->container ?? \Waglpz\Webapp\container())->get($handler);
 
                 \assert(\is_callable($controller));
