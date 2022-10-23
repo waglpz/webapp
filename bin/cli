@@ -67,15 +67,31 @@ $usage = static function (array $config) {
 if ($_SERVER['argc'] < 2) {
     $usage($config);
 }
+$arguments = $_SERVER['argv'];
 
-$command = $_SERVER['argv'][1];
-if (! isset($config['commands'][$command])) {
+\array_shift($arguments);
+
+$quite = false;
+$command = null;          ;
+foreach ($arguments as $argument) {
+    if (\strcasecmp(':q', $argument) === 0 || \strcasecmp(':quit', $argument) === 0) {
+        $quite = true;
+
+        continue;
+    }
+
+    if(isset($config['commands'][$argument])) {
+        $command = $argument;
+    }
+}
+
+if ($command === null) {
     $usage($config);
 }
 
-$prependWarn    = \PHP_EOL.'[!] ';
-$prependSuccess = \PHP_EOL.'[+] ';
-$append         = \PHP_EOL.\PHP_EOL;
+$prependWarn    = $quite ? '' : \PHP_EOL.'[!] ';
+$prependSuccess = $quite ? '' : \PHP_EOL.'[+] ';
+$append         = $quite ? '' : \PHP_EOL.\PHP_EOL;
 
 $commandExecutorClass = $config['commands'][$command]['executor'];
 
@@ -90,6 +106,6 @@ try {
 } catch (\Throwable $exception) {
     $logger->error($exception->getMessage(), ['code' => $exception->getCode()]);
     echo $prependWarn.$exception->getMessage();
-    echo $append;
+    echo $append === '' ? \PHP_EOL . \PHP_EOL : $append;
     exit(1);
 }
