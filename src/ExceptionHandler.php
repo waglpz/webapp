@@ -34,7 +34,10 @@ final class ExceptionHandler implements ExceptionHandlerInvokable
         $loggingDir = $this->logErrorsDir ?? '/tmp';
 
         if ($this->anonymizeLog !== null) {
-            $GLOBALS = \array_replace_recursive($GLOBALS, $this->anonymizeLog);
+            $newGlobals = \array_replace_recursive($GLOBALS, $this->anonymizeLog);
+            foreach ($GLOBALS as $key => $value) {
+                $GLOBALS[$key] = $newGlobals[$key];
+            }
         }
 
         \file_put_contents(

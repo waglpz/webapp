@@ -1,4 +1,4 @@
-FROM olekhy/webapp
+FROM waglpz/vwd-base:8.2
 
 ARG APPUID=0
 ARG APPUGID=0

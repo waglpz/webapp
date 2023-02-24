@@ -32,7 +32,8 @@ final class APIProblemTest extends TestCase
         ];
 
         self::assertSame($expectation, $fact);
-        self::assertCount(0, $apiProblem->problems());
+        $apiProblem->problems()->next();
+        self::assertFalse($apiProblem->problems()->valid());
         self::assertNull($apiProblem->problems()->getReturn());
     }
 

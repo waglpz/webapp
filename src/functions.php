@@ -115,8 +115,7 @@ if (! \function_exists('Waglpz\Webapp\logger')) {
 }
 
 if (! \function_exists('Waglpz\Webapp\config')) {
-    /** @return mixed */
-    function config(?string $partial = null, ?string $projectRoot = null)
+    function config(?string $partial = null, ?string $projectRoot = null): mixed
     {
         $projectRoot = \Waglpz\Webapp\projectRoot($projectRoot);
         $config      = include $projectRoot . '/main.php';

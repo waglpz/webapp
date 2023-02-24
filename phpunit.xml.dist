@@ -7,8 +7,8 @@
          colors="true"
          cacheResult="false"
          bootstrap="vendor/autoload.php"
-         verbose="true">
-    <coverage processUncoveredFiles="true">
+   >
+    <coverage>
         <include>
             <directory suffix=".php">./src</directory>
         </include>
@@ -34,16 +34,7 @@
         <const name="APP_ENV" value="test"/>
         <const name="PROJECT_CONFIG_DIRECTORY" value="config"/>
     </php>
-
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
-
     <logging>
-        <log type="junit" target=".build-output/junit.xml"/>
-        <log type="coverage-html" target=".build-output/coverage"/>
-        <log type="coverage-text" target="php://stdout" showOnlySummary="true"/>
+        <junit outputFile=".build-output/junit.xml"/>
     </logging>
 </phpunit>

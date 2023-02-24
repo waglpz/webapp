@@ -15,16 +15,22 @@ final class FunctionsTest extends TestCase
     {
         $array = [
             'a'   => true,
+            'aaaa'  => true,
             'aa'  => true,
-            'ab'  => true,
-            'aaa' => true,
+            'aaaaaa'  => true,
+            'aaa'  => true,
+            'aaaaaaa'  => true,
+            'aaaaa' => true,
         ];
 
         sortLongestKeyFirst($array);
 
         $expected = [
+            'aaaaaaa' => true,
+            'aaaaaa' => true,
+            'aaaaa' => true,
+            'aaaa' => true,
             'aaa' => true,
-            'ab'  => true,
             'aa'  => true,
             'a'   => true,
         ];

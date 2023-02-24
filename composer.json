@@ -10,13 +10,23 @@
     "apcu-autoloader": true,
     "discard-changes": true,
     "preferred-install": "dist",
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true
+    }
   },
   "bin": [
     "bin/cli"
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/waglpz/http"
+    }
+  ],
   "require": {
-    "php": "^7.4",
+    "php": "^8.2",
     "ext-apcu": "*",
     "ext-intl": "*",
     "ext-json": "*",
@@ -25,28 +35,28 @@
     "ext-pdo": "*",
     "ext-pdo_mysql": "*",
     "aidphp/http": "dev-master",
-    "aura/sql": "^3.0",
+    "aura/sql": "^5.0",
     "moddengine/dice": "^4.1",
     "nikolaposa/monolog-factory": "^3.1",
     "psr/container": "^2.0",
-    "ramsey/uuid": "^4.1",
-    "slim/php-view": "^3.1",
-    "symfony/dotenv": "^5.3",
-    "waglpz/webapp-routing": "^1.1"
+    "ramsey/uuid": "^4.7",
+    "slim/php-view": "^3.2",
+    "symfony/dotenv": "^5.4",
+    "waglpz/webapp-routing": "dev-php8.2-ready"
   },
   "require-dev": {
     "doctrine/coding-standard": "^9.0",
     "phpstan/extension-installer": "^1.1",
-    "phpstan/phpstan": "^1.5",
-    "phpstan/phpstan-deprecation-rules": "^1.0",
-    "phpstan/phpstan-doctrine": "^1.3",
+    "phpstan/phpstan": "^1.10",
+    "phpstan/phpstan-deprecation-rules": "^1.1",
+    "phpstan/phpstan-doctrine": "^1.1",
     "phpstan/phpstan-phpunit": "^1.1",
     "phpstan/phpstan-strict-rules": "^1.1",
     "phpstan/phpstan-symfony": "^1.1",
     "phpstan/phpstan-webmozart-assert": "^1.1",
-    "phpunit/phpunit": "^9.5",
-    "roave/security-advisories": "dev-latest",
-    "squizlabs/php_codesniffer": "^3.6",
+    "phpunit/phpunit": "^10.0",
+    "roave/security-advisories": "dev-master",
+    "squizlabs/php_codesniffer": "^3.7",
     "symfony/var-dumper": "^5.4"
   },
   "conflict": {

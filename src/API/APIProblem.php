@@ -17,18 +17,24 @@ final class APIProblem
     {
     }
 
-    /** @param array<string,mixed> $data */
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         $new = new self();
-        \assert($data['type'] === null || \is_string($data['type']));
-        \assert($data['title'] === null || \is_string($data['title']));
-        \assert($data['detail'] === null || \is_string($data['detail']));
-        \assert($data['status'] === null || \is_int($data['status']));
+        \assert((isset($data['type']) && \is_string($data['type'])) || ! isset($data['type']));
+        \assert((isset($data['title']) && \is_string($data['title'])) || ! isset($data['title']));
+        \assert((isset($data['status']) && \is_int($data['status'])) || ! isset($data['status']));
+        \assert((isset($data['detail']) && \is_string($data['detail'])) || ! isset($data['detail']));
 
-        $new->type   = $data['type'] ?? '';
-        $new->title  = $data['title'] ?? '';
+        /** @phpstan-ignore-next-line type */
+        $new->type = $data['type'] ?? '';
+        /** @phpstan-ignore-next-line type */
+        $new->title = $data['title'] ?? '';
+        /** @phpstan-ignore-next-line type */
         $new->status = $data['status'] ?? 0;
+        /** @phpstan-ignore-next-line type */
         $new->detail = $data['detail'] ?? '';
 
         if (isset($data['problems']) && \is_array($data['problems']) && \count($data['problems']) > 0) {
