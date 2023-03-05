@@ -4,9 +4,58 @@ declare(strict_types=1);
 
 namespace Waglpz\Webapp;
 
-use Dice\Dice;
-use MonologFactory\LoggerFactory;
-use Psr\Log\LoggerInterface;
+use Aidphp\Http\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+if (! \function_exists('Waglpz\Webapp\jsonResponse')) {
+    /**
+     * @param array<mixed> $data
+     *
+     * @throws \JsonException
+     */
+    function jsonResponse(array|null $data, int $httpResponseStatus = 200): ResponseInterface
+    {
+        $jsonString = \json_encode(
+            $data,
+            \JSON_PRETTY_PRINT | \JSON_ERROR_INVALID_PROPERTY_NAME | \JSON_THROW_ON_ERROR,
+        );
+
+        $response = (new Response($httpResponseStatus))->withHeader('content-type', 'application/json');
+        $response->getBody()->write($jsonString);
+
+        return $response;
+    }
+}
+
+if (! \function_exists('Waglpz\Webapp\dataFromRequest')) {
+    /**
+     * @return array<mixed>
+     *
+     * @throws \JsonException
+     */
+    function dataFromRequest(ServerRequestInterface $request): array
+    {
+        $getData = $request->getQueryParams();
+        if ($request->getMethod() !== 'GET') {
+            if (\str_starts_with($request->getHeaderLine('content-type'), 'application/json')) {
+                $content  = $request->getBody()->getContents();
+                $postData = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            } else {
+                $postData = $request->getParsedBody();
+            }
+
+            if (\is_array($postData)) {
+                return \array_replace_recursive(
+                    $postData,
+                    $getData,
+                );
+            }
+        }
+
+        return $getData;
+    }
+}
 
 if (! \function_exists('Waglpz\Webapp\webBase')) {
     function webBase(): string
@@ -21,10 +70,10 @@ if (! \function_exists('Waglpz\Webapp\webBase')) {
                 \dirname(
                     \substr(
                         $_SERVER['SCRIPT_FILENAME'],
-                        -\strlen($_SERVER['PHP_SELF'])
-                    )
+                        -\strlen($_SERVER['PHP_SELF']),
+                    ),
                 ),
-                '/'
+                '/',
             );
         } else {
             $base = '';
@@ -67,7 +116,7 @@ if (! \function_exists('Waglpz\Webapp\version')) {
         /** @phpstan-var string|bool $version */
         if (! \is_string($version)) {
             throw new \RuntimeException(
-                'Could not gatter version from git history'
+                'Could not gatter version from git history',
             );
         }
 
@@ -76,9 +125,7 @@ if (! \function_exists('Waglpz\Webapp\version')) {
 }
 
 if (! \function_exists('Waglpz\Webapp\sortLongestKeyFirst')) {
-    /**
-     * @param array<string,mixed> $assocArray
-     */
+    /** @param array<string,mixed> $assocArray */
     function sortLongestKeyFirst(array &$assocArray): void
     {
         \uksort(
@@ -93,92 +140,7 @@ if (! \function_exists('Waglpz\Webapp\sortLongestKeyFirst')) {
                 }
 
                 return 0;
-            }
+            },
         );
-    }
-}
-
-if (! \function_exists('Waglpz\Webapp\logger')) {
-    /** @param array<mixed> $config */
-    function logger(array $config, ?string $name = null): LoggerInterface
-    {
-        static $logger = [];
-
-        $name ??= 'default';
-
-        if (! isset($logger[$name]) && \is_array($config[$name])) {
-            $logger[$name] = (new LoggerFactory())->create($name, $config[$name]);
-        }
-
-        return $logger[$name];
-    }
-}
-
-if (! \function_exists('Waglpz\Webapp\config')) {
-    function config(?string $partial = null, ?string $projectRoot = null): mixed
-    {
-        $projectRoot = \Waglpz\Webapp\projectRoot($projectRoot);
-        $config      = include $projectRoot . '/main.php';
-
-        if ($partial !== null && ! isset($config[$partial])) {
-            throw new \InvalidArgumentException(
-                \sprintf(
-                    'Unknown config key given "%s".',
-                    $partial
-                )
-            );
-        }
-
-        return $partial !== null ? $config[$partial] : $config;
-    }
-}
-
-if (! \function_exists('Waglpz\Webapp\projectRoot')) {
-    function projectRoot(?string $projectRoot = null): string
-    {
-        if ($projectRoot === null) {
-            \assert(\defined('PROJECT_CONFIG_DIRECTORY'));
-
-            return \PROJECT_CONFIG_DIRECTORY;
-        }
-
-        return $projectRoot;
-    }
-}
-
-if (! \function_exists('Waglpz\Webapp\container')) {
-    function container(): Container
-    {
-        static $container = null;
-        if ($container !== null) {
-            return $container;
-        }
-
-        if (! \defined('PROJECT_CONFIG_DIRECTORY')) {
-            throw new \Error(
-                'Runtime Constant "PROJECT_CONFIG_DIRECTORY" may not defined as expected.'
-            );
-        }
-
-        $dicRules = include \PROJECT_CONFIG_DIRECTORY . '/dic.rules.php';
-        $dic      = (new Dice())->addRules($dicRules);
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $container = new Container($dic);
-
-        return $container;
-    }
-}
-
-if (! \function_exists('Waglpz\Webapp\cliExecutorName')) {
-    function cliExecutorName(): string
-    {
-        static $cliExecutor = null;
-        if ($cliExecutor === null) {
-            $cliExecutor = isset($_SERVER['COMPOSER_HOME'], $_SERVER['COMPOSER_BINARY'])
-                ? ' composer waglpz:cli '
-                : ' php ' . $_SERVER['argv'][0] . ' ';
-        }
-
-        return $cliExecutor;
     }
 }

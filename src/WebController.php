@@ -11,11 +11,8 @@ use Slim\Views\PhpRenderer;
 
 abstract class WebController extends BaseController
 {
-    private PhpRenderer $view;
-
-    public function __construct(PhpRenderer $view)
+    public function __construct(private readonly PhpRenderer $view)
     {
-        $this->view = $view;
     }
 
     abstract public function __invoke(ServerRequestInterface $request): ResponseInterface;
@@ -25,11 +22,15 @@ abstract class WebController extends BaseController
         $this->view->setLayout($layout . '.phtml');
     }
 
-    /** @param array<mixed> $data */
+    /**
+     * @param array<mixed> $data
+     *
+     * @throws \Throwable
+     */
     public function render(
         array $data = [],
         int $httpResponseStatus = 200,
-        ?string $template = null
+        string|null $template = null,
     ): ResponseInterface {
         $classNameAsArray = \explode('\\', static::class);
         $className        = \end($classNameAsArray);
@@ -43,11 +44,16 @@ abstract class WebController extends BaseController
         return $this->view->render($response, $template, $data);
     }
 
-    protected function renderJson(?array $data, int $httpResponseStatus = 200): ResponseInterface
+    /**
+     * @param array<mixed> $data
+     *
+     * @throws \JsonException
+     */
+    protected function renderJson(array|null $data, int $httpResponseStatus = 200): ResponseInterface
     {
         $this->disableLayout();
 
-        return parent::renderJson($data, $httpResponseStatus);
+        return \Waglpz\Webapp\jsonResponse($data, $httpResponseStatus);
     }
 
     public function disableLayout(): void
@@ -55,20 +61,20 @@ abstract class WebController extends BaseController
         $this->view->setLayout('');
     }
 
-    public function renderError(string $message, ?string $trace, int $code): ResponseInterface
+    /** @throws \Throwable */
+    public function renderError(string $message, string|null $trace, int $code): ResponseInterface
     {
         $response = new Response($code);
         $this->disableLayout();
-        $response = $this->view->render(
+
+        return $this->view->render(
             $response,
             'errorAction.phtml',
             [
                 'message' => $message,
                 'trace'   => \APP_ENV === 'dev' ? $trace : 'Error Trace ist ausgeschaltet.',
-            ]
+            ],
         );
-
-        return $response;
     }
 
     /** @codeCoverageIgnore */

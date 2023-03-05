@@ -1,8 +1,6 @@
 parameters:
     ignoreErrors:
-         - '#Constant APP_ENV not found.#'
-         - '#Variable method call#'
-#         - '#Short ternary operator is not allowed. Use null coalesce operator#'
+#         - '#Constant APP_ENV not found.#'
     polluteScopeWithLoopInitialAssignments: true
     parallel:
         # to disable parallel uncomment next line

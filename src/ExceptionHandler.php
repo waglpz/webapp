@@ -10,18 +10,14 @@ use Interop\Http\EmitterInterface;
 
 final class ExceptionHandler implements ExceptionHandlerInvokable
 {
-    private ?string $logErrorsDir;
-    /** @var array<mixed> */
-    private ?array $anonymizeLog;
-
     /** @param array<mixed> $anonymizeLog */
-    public function __construct(?string $logErrorsDir = null, ?array $anonymizeLog = null)
-    {
-        $this->logErrorsDir = $logErrorsDir;
-        $this->anonymizeLog = $anonymizeLog;
+    public function __construct(
+        private readonly string|null $logErrorsDir = null,
+        private readonly array|null $anonymizeLog = null,
+    ) {
     }
 
-    public function __invoke(\Throwable $exception, ?EmitterInterface $emitter = null): void
+    public function __invoke(\Throwable $exception, EmitterInterface|null $emitter = null): void
     {
         $code              = $exception->getCode();
         $code              = $code < 100 || $code > 599 ? 500 : $code;
@@ -48,7 +44,7 @@ final class ExceptionHandler implements ExceptionHandlerInvokable
             . $date . ' [PAYLOAD] ' . $payload . \PHP_EOL
             . $date . ' [POST] ' . \preg_replace('#\s+#', ' ', \print_r($GLOBALS['_POST'], true)) . \PHP_EOL
             . $date . ' [GET] ' . \preg_replace('#\s+#', ' ', \print_r($GLOBALS['_GET'], true)) . \PHP_EOL,
-            \FILE_APPEND
+            \FILE_APPEND,
         );
         $response = new Response($code);
         if ($emitter === null) {

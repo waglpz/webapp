@@ -13,17 +13,18 @@ BOLD="\e[1m"
 ULINE="\e[4m"
 RESET="\e[0m"
 
-USER_NAME=waglpz
+USER_NAME=www-data
 IMAGE_NAME=${USER_NAME}/$(basename $PWD)
 
 echo -e "${GREEN}Begin create Docker image '${IMAGE_NAME}' ...${RESET}"
 
-docker build                        \
-       --no-cache                   \
-       --force-rm                   \
-       --tag ${IMAGE_NAME}          \
-       --build-arg APPUID=$(id -u)  \
-       --build-arg APPUGID=$(id -g) \
+docker build                          \
+       --no-cache                     \
+       --force-rm                     \
+       --tag ${IMAGE_NAME}            \
+       --build-arg APPUID=$(id -u)    \
+       --build-arg APPUGID=$(id -g)   \
+       --build-arg DUSER=${USER_NAME} \
 .docker
 
 docker images | grep "$(basename $PWD)"

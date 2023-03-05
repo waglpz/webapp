@@ -2,25 +2,8 @@
 
 declare(strict_types=1);
 
-use Monolog\Handler\SyslogHandler;
-use Monolog\Processor\PsrLogMessageProcessor;
+$default = [];
 
-return [
-    'default' => [
-        'handlers'   => [
-            [
-                'name'         => SyslogHandler::class,
-                'params'       => [
-                    'ident'    => 'webapp-default-logger',
-                    'facility' => 'local0',
-                    'level'    => Psr\Log\LogLevel::DEBUG,
-                ],
-            ],
-        ],
-        'processors' => [
-            [
-                'name' => PsrLogMessageProcessor::class,
-            ],
-        ],
-    ],
-];
+$envSpecificConfig = __DIR__ . '/logger/' . APP_ENV . '.php';
+
+return is_file($envSpecificConfig) ? array_replace_recursive($default, include $envSpecificConfig) : $default;

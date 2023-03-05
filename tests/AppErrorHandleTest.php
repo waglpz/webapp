@@ -6,6 +6,7 @@ namespace Waglpz\Webapp\Tests;
 
 use FastRoute\Dispatcher;
 use Interop\Http\EmitterInterface;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Waglpz\Webapp\App;
@@ -14,7 +15,11 @@ use Waglpz\Webapp\ExceptionHandlerInvokable;
 
 final class AppErrorHandleTest extends TestCase
 {
-    /** @test */
+    /**
+     * @throws Exception
+     *
+     * @test
+     */
     public function convertToException(): void
     {
         $dispatcher = $this->createMock(Dispatcher::class);
@@ -30,7 +35,11 @@ final class AppErrorHandleTest extends TestCase
         \trigger_error('Test Error');
     }
 
-    /** @test */
+    /**
+     * @throws Exception
+     *
+     * @test
+     */
     public function exceptionHandlerEmmitErrorResponse(): void
     {
         $exceptionHandler = new ExceptionHandler();
