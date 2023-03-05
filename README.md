@@ -1,10 +1,10 @@
 ## Waglpz Web Application component
 
-The Library enables you to work with web application as MVC or RESTful API or both.
+The Library enables you to work with web application as MVC.
 
 ### Requirements
 
-PHP 7.4 or higher (see composer json)
+PHP 8.2 or higher (see composer json)
 
 ### Installation
 

@@ -2,6 +2,8 @@
 /** @var string $content */
 /** @var string $webseitenTitle */
 /** @var string $seitenTitle */
+//use function Waglpz\WebApp\View\Helpers\viewHelpers;
+use function Waglpz\Webapp\View\Helpers\viewHelpers;
 $webBase = \Waglpz\WebApp\webBase();
 $version = \Waglpz\WebApp\version();
 ?><!doctype html>
@@ -19,8 +21,13 @@ $version = \Waglpz\WebApp\version();
     <script src="<?=$webBase?>/javascript/app.js?<?=$version?>"></script>
 </head>
 <body>
+<?=viewHelpers()->navigation()->topNavigation()?>
+<?php //=viewHelpers()->modalDialog()->documentUpload()?>
 <div class="container-fluid vh-95">
     <div class="row">
+
+<?=viewHelpers()->navigation()->sideNavigation()?>
+
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4" style="padding-top: 1.15rem;">
             <h1 class="h5 text-black-50"><?=$seitenTitle?></h1>
             <?=$content?>
@@ -35,6 +42,7 @@ $version = \Waglpz\WebApp\version();
     <span class="screen-reader-text">nach oben</span>
 </a>
 
+<!--<?//=viewHelpers()->modalDialog()?>-->
 </body>
 <script src="<?=$webBase?>/javascript/fontawesome.js?<?=$version?>" crossorigin="anonymous"></script>
 <script src="<?=$webBase?>/javascript/jquery-3.6.0.min.js?<?=$version?>"></script>

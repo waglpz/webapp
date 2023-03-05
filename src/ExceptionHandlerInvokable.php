@@ -8,5 +8,5 @@ use Interop\Http\EmitterInterface;
 
 interface ExceptionHandlerInvokable
 {
-    public function __invoke(\Throwable $exception, ?EmitterInterface $emitter = null): void;
+    public function __invoke(\Throwable $exception, EmitterInterface|null $emitter = null): void;
 }

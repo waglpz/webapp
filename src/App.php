@@ -9,20 +9,17 @@ use Interop\Http\EmitterInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+use function Waglpz\DiContainer\container;
+
 final class App
 {
-    private Dispatcher $dispatcher;
-    private EmitterInterface $emitter;
     private ContainerInterface $container;
 
     public function __construct(
-        Dispatcher $dispatcher,
-        EmitterInterface $emitter,
-        ?ExceptionHandlerInvokable $exceptionHandler = null
+        private readonly Dispatcher $dispatcher,
+        private readonly EmitterInterface $emitter,
+        ExceptionHandlerInvokable|null $exceptionHandler = null,
     ) {
-        $this->emitter    = $emitter;
-        $this->dispatcher = $dispatcher;
-
         if ($exceptionHandler === null) {
             return;
         }
@@ -31,7 +28,7 @@ final class App
         \set_error_handler(
             static function ($errorCode, string $errorMessage): bool {
                 throw new \Error($errorMessage, 500);
-            }
+            },
         );
 
         \set_exception_handler($exceptionHandler);
@@ -74,7 +71,7 @@ final class App
                     return static fn () => ($handler)($request);
                 }
 
-                $controller = ($this->container ?? \Waglpz\Webapp\container())->get($handler);
+                $controller = ($this->container ?? container())->get($handler);
 
                 \assert(\is_callable($controller));
 
@@ -85,17 +82,17 @@ final class App
 
             if ($info === Dispatcher::METHOD_NOT_ALLOWED) {
                 $message = \sprintf(
-                    'Leider angefragte HTTP Method "%s" nicht erlaubt. Erlaubt sind "%s".',
+                    'Unfortunately requested HTTP method "%s" not allowed. Allowed are "%s".',
                     $httpMethod,
-                    \implode(',', $allowedMethods)
+                    \implode(',', $allowedMethods),
                 );
 
                 throw new \Error($message, 405);
             }
         } elseif (\count($routeInfo) === 1 && $routeInfo[0] === Dispatcher::NOT_FOUND) {
-            throw new \Error(\sprintf('Leider angefragte Resource "%s" nicht existent!', $uri), 404);
+            throw new \Error(\sprintf('Unfortunately requested site or resource "%s" does not exist!', $uri), 404);
         }
 
-        throw new \Error('Unbekannter Server Fehler, Router Problem', 500);
+        throw new \Error('Unknown server error, router problem.', 500);
     }
 }

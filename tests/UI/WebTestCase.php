@@ -6,13 +6,19 @@ namespace Waglpz\Webapp\Tests\UI;
 
 use Aidphp\Http\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Waglpz\Webapp\App;
 
-use function Waglpz\Webapp\container;
+use function Waglpz\DiContainer\container;
 
 abstract class WebTestCase extends TestCase
 {
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function createApp(): App
     {
         $_SERVER['REQUEST_SCHEME'] = 'http';
@@ -28,6 +34,10 @@ abstract class WebTestCase extends TestCase
         return $app;
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     protected function webGetResponse(string $uri): ResponseInterface
     {
         $app     = $this->createApp();
