@@ -84,6 +84,7 @@
     "waglpz:generate:password": "php bin/generate-password.php",
     "waglpz:test:normal": "phpunit --colors=always --no-coverage --order-by random",
     "waglpz:test:coverage": "phpunit --testdox --colors=always",
-    "waglpz:test:ci": "phpunit --colors=always --no-coverage --no-logging --do-not-cache-result --order-by random"
+    "waglpz:test:ci": "phpunit --colors=always --no-coverage --no-logging --do-not-cache-result --order-by random",
+    "waglpz:debug:dump:server": "var-dump-server"
   }
 }

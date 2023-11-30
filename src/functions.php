@@ -144,3 +144,59 @@ if (! \function_exists('Waglpz\Webapp\sortLongestKeyFirst')) {
         );
     }
 }
+
+if (! \function_exists('Waglpz\Webapp\getTraceDigest')) {
+    /** @return array<int,string> */
+    function getTraceDigest(\Throwable $exception): array
+    {
+        $trace            = $exception->getTrace();
+        $formattedTrace   = [];
+        $prefix           = \uniqid() . ' ' . \str_pad('|', \count($trace) + 1, '-');
+        $formattedTrace[] = $prefix . ' Exception: ' . $exception::class;
+        $formattedTrace[] = $prefix . ' Message: ' . $exception->getMessage();
+        foreach ($trace as $item) {
+            $prefix = \substr($prefix, 0, -1);
+            if (isset($item['file'])) {
+                $line             = isset($item['line']) ? ':' . $item['line'] : '';
+                $formattedTrace[] = $prefix
+                . ' File: '
+                . $item['file']
+                . $line;
+            }
+
+            $args = '';
+            if (isset($item['args'])) {
+                $args = \implode(
+                    ', ',
+                    \array_map(
+                        static function ($arg) {
+                            if (\is_scalar($arg)) {
+                                return \preg_replace('/\s+/', ' ', (string) $arg);
+                            }
+
+                            if (\is_object($arg)) {
+                                return $arg::class;
+                            }
+
+                            if (\is_array($arg)) {
+                                return $arg !== [] ? \array_pop($arg) : '[]';
+                            }
+                        },
+                        $item['args'],
+                    ),
+                );
+            }
+
+            if (isset($item['class'])) {
+                $type          = isset($item['type']) ? ':' . $item['type'] : ' ';
+                $formattedItem = $item['class'] . $type . $item['function'] . '(' . $args . ')';
+            } else {
+                $formattedItem = $item['function'] . '(' . $args . ')';
+            }
+
+            $formattedTrace[] = $prefix . ' Function: ' . $formattedItem;
+        }
+
+        return $formattedTrace;
+    }
+}
