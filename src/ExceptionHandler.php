@@ -34,6 +34,20 @@ final class ExceptionHandler implements ExceptionHandlerInvokable
             foreach ($GLOBALS as $key => $value) {
                 $GLOBALS[$key] = $newGlobals[$key];
             }
+
+            if ($payload !== '' && $payload !== false) {
+                try {
+                    $payload = \json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
+                } catch (\Throwable) {
+                    $asArray = [];
+                    \parse_str($payload, $asArray);
+                    $payload = $asArray;
+                }
+
+                \assert(isset($this->anonymizeLog['PAYLOAD']) && \is_array($this->anonymizeLog['PAYLOAD']));
+                \assert(\is_array($payload));
+                $payload = \var_export(\array_replace_recursive($payload, $this->anonymizeLog['PAYLOAD']), true);
+            }
         }
 
         \file_put_contents(
