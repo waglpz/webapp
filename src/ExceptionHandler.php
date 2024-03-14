@@ -13,7 +13,7 @@ final class ExceptionHandler implements ExceptionHandlerInvokable
     /** @param array<mixed> $anonymizeLog */
     public function __construct(
         private readonly string|null $logErrorsDir = null,
-        private readonly array|null  $anonymizeLog = null,
+        private readonly array|null $anonymizeLog = null,
     ) {
     }
 
@@ -32,6 +32,7 @@ final class ExceptionHandler implements ExceptionHandlerInvokable
         if ($this->anonymizeLog !== null) {
             $newGlobals = \array_replace_recursive($GLOBALS, $this->anonymizeLog);
             foreach ($GLOBALS as $key => $value) {
+                
                 $GLOBALS[$key] = $newGlobals[$key];
             }
             if ($payload !== '') {
@@ -42,9 +43,8 @@ final class ExceptionHandler implements ExceptionHandlerInvokable
                     \parse_str($payload, $asArray);
                     $payload = $asArray;
                 }
+                $payload = \var_export(\array_replace_recursive($payload, $this->anonymizeLog['PAYLOAD']), true);
             }
-
-            $payload = \var_export(\array_replace_recursive($payload, $this->anonymizeLog['PAYLOAD']), true);
         }
 
         \file_put_contents(
