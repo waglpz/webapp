@@ -159,9 +159,9 @@ if (! \function_exists('Waglpz\Webapp\getTraceDigest')) {
             if (isset($item['file'])) {
                 $line             = isset($item['line']) ? ':' . $item['line'] : '';
                 $formattedTrace[] = $prefix
-                . ' File: '
-                . $item['file']
-                . $line;
+                    . ' File: '
+                    . $item['file']
+                    . $line;
             }
 
             $args = '';

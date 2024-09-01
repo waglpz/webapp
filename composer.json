@@ -6,6 +6,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "config": {
+    "process-timeout": 72000,
     "optimize-autoloader": true,
     "apcu-autoloader": true,
     "discard-changes": true,
@@ -25,24 +26,29 @@
   "require": {
     "php": "^8.2",
     "ext-apcu": "*",
+    "ext-fileinfo": "*",
     "ext-intl": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-mysqli": "*",
+    "ext-pcntl": "*",
     "ext-pdo": "*",
     "ext-pdo_mysql": "*",
     "aidphp/http": "dev-master",
     "aura/sql": "^5.0",
     "nikolaposa/monolog-factory": "^3.1",
+    "ocramius/generated-hydrator": "^4.6",
     "ramsey/uuid": "^4.7",
     "slim/php-view": "^3.2",
     "symfony/dotenv": "^v6.2",
     "waglpz/config": "^2.0",
     "waglpz/di-container": "^v2.0",
-    "waglpz/webapp-routing": "^v2.0"
+    "waglpz/webapp-routing": "^v2.0",
+    "webmozart/assert": "^1.11"
   },
   "require-dev": {
     "doctrine/coding-standard": "^11.1",
+    "nunomaduro/mock-final-classes": "^1.2",
     "phpstan/extension-installer": "^1.1",
     "phpstan/phpstan": "^1.10",
     "phpstan/phpstan-deprecation-rules": "^1.0",
@@ -54,7 +60,7 @@
     "phpunit/phpunit": "^10.0",
     "roave/security-advisories": "dev-latest",
     "squizlabs/php_codesniffer": "^3.7",
-    "symfony/var-dumper": "^5.4"
+    "symfony/var-dumper": "^7.0"
   },
   "conflict": {
   },
@@ -63,7 +69,8 @@
       "Waglpz\\Webapp\\": "src/"
     },
     "files": [
-      "src/functions.php"
+      "src/functions.php",
+      "src/functions-ddd.php"
     ]
   },
   "autoload-dev": {
@@ -85,6 +92,6 @@
     "waglpz:test:normal": "phpunit --colors=always --no-coverage --order-by random",
     "waglpz:test:coverage": "phpunit --testdox --colors=always",
     "waglpz:test:ci": "phpunit --colors=always --no-coverage --no-logging --do-not-cache-result --order-by random",
-    "waglpz:debug:dump:server": "var-dump-server"
+    "waglpz:var:dump:server": "var-dump-server"
   }
 }

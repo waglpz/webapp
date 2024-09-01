@@ -1,7 +1,8 @@
 parameters:
     ignoreErrors:
-#         - '#Constant APP_ENV not found.#'
+#         - '#Constant APP_ENV not found#'
     polluteScopeWithLoopInitialAssignments: true
+    inferPrivatePropertyTypeFromConstructor: true
     parallel:
         # to disable parallel uncomment next line
         #maximumNumberOfProcesses: 1

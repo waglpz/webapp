@@ -28,6 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 /** @phpstan-ignore-next-line */
-\Waglpz\DiContainer\container()->get('$defaultWebApp')->run(
+\Waglpz\DiContainer\container()->get('$DefaultWebApp')->run(
     \Waglpz\DiContainer\container()->get(\Psr\Http\Message\ServerRequestInterface::class),
 );

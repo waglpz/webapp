@@ -32,7 +32,7 @@ return [
             ExceptionHandlerInvokable::class => '$DefaultExceptionHandler',
         ],
     ],
-    '$defaultWebApp'                 => [
+    '$DefaultWebApp'                 => [
         'shared' => true,
         'instanceOf' =>  App::class,
     ],
