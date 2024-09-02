@@ -2,6 +2,7 @@
   "name": "waglpz/webapp",
   "description": "Web application component",
   "license": "MIT",
+  "version": "2.1.0",
   "type": "library",
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -41,9 +42,9 @@
     "ramsey/uuid": "^4.7",
     "slim/php-view": "^3.2",
     "symfony/dotenv": "^v6.2",
-    "waglpz/config": "^2.0",
-    "waglpz/di-container": "^v2.0",
-    "waglpz/webapp-routing": "^v2.0",
+    "waglpz/config": "^2.1",
+    "waglpz/di-container": "^2.1",
+    "waglpz/webapp-routing": "^2.1",
     "webmozart/assert": "^1.11"
   },
   "require-dev": {
