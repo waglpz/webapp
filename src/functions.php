@@ -8,6 +8,33 @@ use Aidphp\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+if (! \function_exists('Waglpz\Webapp\isSubset')) {
+    /**
+     * @param array<mixed>      $subset
+     * @param array<int,string> $set
+     *
+     * @return array<mixed>
+     */
+    function isSubset(
+        array $subset,
+        array $set,
+    ): array {
+        $unexpectedValues = [];
+        $subset           = \array_keys($subset);
+        $set              = \array_flip($set);
+
+        foreach ($subset as $item) {
+            if (isset($set[$item])) {
+                continue;
+            }
+
+            $unexpectedValues[] = $item;
+        }
+
+        return $unexpectedValues;
+    }
+}
+
 if (! \function_exists('Waglpz\Webapp\jsonResponse')) {
     /**
      * @param array<mixed> $data
@@ -179,7 +206,16 @@ if (! \function_exists('Waglpz\Webapp\getTraceDigest')) {
                             }
 
                             if (\is_array($arg)) {
-                                return $arg !== [] ? \array_pop($arg) : '[]';
+                                if ($arg === []) {
+                                    return '[]';
+                                }
+
+                                $first = \array_pop($arg);
+                                if ($first instanceof \Closure) {
+                                    return $first::class;
+                                }
+
+                                return $first;
                             }
                         },
                         $item['args'],

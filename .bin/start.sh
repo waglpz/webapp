@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 
-# Ansi color code variables
-RED="\e[0;91m"
-BLUE="\e[0;94m"
-EXPAND_BG="\e[K"
-BLUE_BG="\e[0;104m${expand_bg}"
-RED_BG="\e[0;101m${expand_bg}"
-GREEN_BG="\e[0;102m${expand_bg}"
 GREEN="\e[0;92m"
-WHITE="\e[0;97m"
-BOLD="\e[1m"
-ULINE="\e[4m"
 RESET="\e[0m"
 
 USER_NAME=www-data
