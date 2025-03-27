@@ -336,7 +336,7 @@ if (! \function_exists('paginationHateOs')) {
     function paginationHateOs(string $endpointUri): Pagination
     {
         return new class ($endpointUri) implements Pagination {
-            public const MAX_ITEMS_ALLOWED_PER_PAGE = 100;
+            public const int MAX_ITEMS_ALLOWED_PER_PAGE = 100;
 
             private int $maxItemsPerPage;
             /** @var callable */
