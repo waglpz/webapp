@@ -64,20 +64,29 @@ if (! \function_exists('Waglpz\Webapp\dataFromRequest')) {
     function dataFromRequest(ServerRequestInterface $request): array
     {
         $getData = $request->getQueryParams();
+
         if ($request->getMethod() !== 'GET') {
-            if (\str_starts_with($request->getHeaderLine('content-type'), 'application/json')) {
-                $content  = $request->getBody()->getContents();
-                $postData = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-            } else {
-                $postData = $request->getParsedBody();
+            $parsedBodyData = (array) $request->getParsedBody();
+            $postData       = [];
+
+            if (
+                $parsedBodyData === []
+                && \str_starts_with($request->getHeaderLine('content-type'), 'application/json')
+            ) {
+                $stream = $request->getBody();
+                $stream->rewind();
+                $content = $stream->getContents();
+
+                if ($content !== '') {
+                    $postData = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+                }
             }
 
-            if (\is_array($postData)) {
-                return \array_replace_recursive(
-                    $postData,
-                    $getData,
-                );
+            if (! \is_array($postData)) {
+                $postData = [];
             }
+
+            return \array_replace_recursive($postData, $parsedBodyData, $getData);
         }
 
         return $getData;
@@ -210,12 +219,11 @@ if (! \function_exists('Waglpz\Webapp\getTraceDigest')) {
                                     return '[]';
                                 }
 
-                                $first = \array_pop($arg);
-                                if ($first instanceof \Closure) {
-                                    return $first::class;
+                                if (isset($arg[0]) && $arg[0] instanceof \Closure) {
+                                    return $arg[0]::class;
                                 }
 
-                                return $first;
+                                return \preg_replace('/\s+/', ' ', \var_export($arg, true));
                             }
                         },
                         $item['args'],
