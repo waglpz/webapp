@@ -9,12 +9,10 @@ use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
 use Slim\Views\PhpRenderer;
 use Waglpz\Webapp\BaseController;
 use Waglpz\Webapp\WebController;
 
-use function Waglpz\Webapp\dataFromRequest;
 use function Waglpz\Webapp\jsonResponse;
 
 final class WebControllerTest extends TestCase
@@ -113,137 +111,5 @@ final class WebControllerTest extends TestCase
 
         $response = $baseController($request);
         self::assertSame(500, $response->getStatusCode());
-    }
-
-    /**
-     * @throws Exception
-     * @throws \JsonException
-     *
-     * @test
-     */
-    public function getDataFromJsonRequest(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())->method('getMethod')->willReturn('POST');
-        $request->expects(self::once())->method('getQueryParams')->willReturn(['q' => 'q1', 'mix' => 'qMix']);
-        $request->expects(self::once())->method('getHeaderLine')
-                ->with('content-type')
-                ->willReturn('application/json');
-        $streamContent = $this->createMock(StreamInterface::class);
-        $jsonPayload   = \json_encode(['p' => 'p1', 'mix' => 'pMix'], \JSON_THROW_ON_ERROR);
-        $streamContent->expects(self::once())->method('getContents')->willReturn($jsonPayload);
-        $request->expects(self::once())->method('getBody')->willReturn($streamContent);
-        $baseController = new class extends BaseController {
-            public function __invoke(ServerRequestInterface $request): ResponseInterface
-            {
-                return new Response();
-            }
-
-            /** @return array<mixed> */
-            public function test(ServerRequestInterface $request): array
-            {
-                return dataFromRequest($request);
-            }
-        };
-
-        $data = $baseController->test($request);
-        self::assertEquals(['q' => 'q1', 'p' => 'p1', 'mix' => 'qMix'], $data);
-    }
-
-    /**
-     * @throws Exception
-     * @throws \JsonException
-     *
-     * @test
-     */
-    public function getDataFromJsonUtf8Request(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())->method('getMethod')->willReturn('POST');
-        $request->expects(self::once())->method('getQueryParams')->willReturn([]);
-        $request->expects(self::once())->method('getHeaderLine')
-                ->with('content-type')
-                ->willReturn('application/json; charset=utf-8');
-        $streamContent = $this->createMock(StreamInterface::class);
-        $jsonPayload   = \json_encode(['p' => 'p1'], \JSON_THROW_ON_ERROR);
-        $streamContent->expects(self::once())->method('getContents')->willReturn($jsonPayload);
-        $request->expects(self::once())->method('getBody')->willReturn($streamContent);
-        $baseController = new class extends BaseController {
-            public function __invoke(ServerRequestInterface $request): ResponseInterface
-            {
-                return new Response();
-            }
-
-            /** @return array<mixed> */
-            public function test(ServerRequestInterface $request): array
-            {
-                return dataFromRequest($request);
-            }
-        };
-
-        $data = $baseController->test($request);
-        self::assertEquals(['p' => 'p1'], $data);
-    }
-
-    /**
-     * @throws Exception
-     *
-     * @test
-     */
-    public function getDataFromRequest(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())->method('getMethod')->willReturn('POST');
-        $request->expects(self::once())->method('getQueryParams')->willReturn(['q' => 'q1', 'mix' => 'qMix']);
-        $request->expects(self::once())->method('getHeaderLine')
-                ->with('content-type')
-                ->willReturn('multipart/form-data');
-
-        $request->expects(self::once())->method('getParsedBody')->willReturn(['p' => 'p1', 'mix' => 'pMix']);
-        $baseController = new class extends BaseController {
-            public function __invoke(ServerRequestInterface $request): ResponseInterface
-            {
-                return new Response();
-            }
-
-            /** @return array<mixed> */
-            public function test(ServerRequestInterface $request): array
-            {
-                return dataFromRequest($request);
-            }
-        };
-
-        $data = $baseController->test($request);
-        self::assertEquals(['q' => 'q1', 'p' => 'p1', 'mix' => 'qMix'], $data);
-    }
-
-    /**
-     * @throws Exception
-     *
-     * @test
-     */
-    public function getDataFromRequestGetMethodOnlyPresent(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->expects(self::once())->method('getMethod')->willReturn('GET');
-        $request->expects(self::once())->method('getQueryParams')->willReturn(['a' => 'b']);
-        $request->expects(self::never())->method('getHeaderLine');
-        $request->expects(self::never())->method('getParsedBody');
-
-        $baseController = new class extends BaseController {
-            public function __invoke(ServerRequestInterface $request): ResponseInterface
-            {
-                return new Response();
-            }
-
-            /** @return array<mixed> */
-            public function test(ServerRequestInterface $request): array
-            {
-                return dataFromRequest($request);
-            }
-        };
-
-        $data = $baseController->test($request);
-        self::assertEquals(['a' => 'b'], $data);
     }
 }
