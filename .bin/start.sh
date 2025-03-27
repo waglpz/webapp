@@ -29,4 +29,5 @@ docker run                \
       -v $PWD:/app        \
       -v $PWD/.docker/    \
       -v $PWD/.docker/php/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini \
+      -v $PWD/var:/home/www-data/.composer \
 ${IMAGE_NAME} bash
