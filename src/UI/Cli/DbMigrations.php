@@ -11,15 +11,12 @@ final class DbMigrations
 {
     use DbConnection;
 
-    /** @var array<mixed> */
-    private array $options;
     private string $argument;
     private string $message;
 
     /** @param array<mixed> $options */
-    public function __construct(array $options)
+    public function __construct(private readonly array $options)
     {
-        $this->options = $options;
         $this->check();
     }
 
@@ -92,7 +89,7 @@ final class DbMigrations
         $newMigrations = \array_filter(
             $allMigrations,
             static fn ($migrationTime) => ! \in_array((string) $migrationTime, $oldMigrations, true),
-            \ARRAY_FILTER_USE_KEY
+            \ARRAY_FILTER_USE_KEY,
         );
 
         \ksort($newMigrations);

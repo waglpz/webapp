@@ -29,7 +29,7 @@ final class APIProblem
         if (isset($data['problems']) && \is_array($data['problems']) && \count($data['problems']) > 0) {
             $new->problems = \array_map(
                 static fn (array $problem): self => self::fromArray($problem),
-                $data['problems']
+                $data['problems'],
             );
         }
 

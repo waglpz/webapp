@@ -8,21 +8,22 @@ use Psr\Http\Message\ResponseInterface;
 
 final class APIFetchResult
 {
-    public const OK = 'OK';
-    public const CE = 'CE';
-    public const SE = 'SE';
-    public const TO = 'TO';
+    public const string OK = 'OK';
+    public const string CE = 'CE';
+    public const string SE = 'SE';
+    public const string TO = 'TO';
 
     private ResponseInterface $response;
     private string $status;
     /** @var ?array<mixed>  */
-    private ?array $data;
+    private array|null $data;
     private APIProblem $apiProblem;
 
     private function __construct()
     {
     }
 
+    /** @throws \JsonException */
     public static function fromResponse(ResponseInterface $response): self
     {
         $new           = new self();
@@ -41,7 +42,7 @@ final class APIFetchResult
                 $body->getContents(),
                 true,
                 512,
-                \JSON_THROW_ON_ERROR | \JSON_BIGINT_AS_STRING
+                \JSON_THROW_ON_ERROR | \JSON_BIGINT_AS_STRING,
             );
         }
 
@@ -95,7 +96,7 @@ final class APIFetchResult
     {
         if ($this->status === self::OK) {
             throw new \BadMethodCallException(
-                'Method should not called in contexts where status not corresponding to a Api problem.'
+                'Method should not called in contexts where status not corresponding to a Api problem.',
             );
         }
 

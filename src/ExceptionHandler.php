@@ -8,16 +8,13 @@ use Aidphp\Http\Emitter;
 use Aidphp\Http\Response;
 use Interop\Http\EmitterInterface;
 
-final class ExceptionHandler implements ExceptionHandlerInvokable
+final readonly class ExceptionHandler implements ExceptionHandlerInvokable
 {
-    private ?string $logErrorsDir;
-
-    public function __construct(?string $logErrorsDir = null)
+    public function __construct(private string|null $logErrorsDir = null)
     {
-        $this->logErrorsDir = $logErrorsDir;
     }
 
-    public function __invoke(\Throwable $exception, ?EmitterInterface $emitter = null): void
+    public function __invoke(\Throwable $exception, EmitterInterface|null $emitter = null): void
     {
         $code              = $exception->getCode();
         $code              = $code < 100 || $code > 599 ? 500 : $code;
@@ -37,7 +34,7 @@ final class ExceptionHandler implements ExceptionHandlerInvokable
             . $date . ' [PAYLOAD] ' . $payload . \PHP_EOL
             . $date . ' [POST] ' . \preg_replace('#\s+#', ' ', \print_r($_POST, true)) . \PHP_EOL
             . $date . ' [GET] ' . \preg_replace('#\s+#', ' ', \print_r($_GET, true)) . \PHP_EOL,
-            \FILE_APPEND
+            \FILE_APPEND,
         );
         $response = new Response($code);
         if ($emitter === null) {

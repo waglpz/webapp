@@ -82,7 +82,7 @@ class DbMigrationsTest extends TestCase
   Affected rows #1
   Applied migrations #1
 ',
-            $output
+            $output,
         );
     }
 

@@ -38,6 +38,7 @@ class AuthStorageTest extends TestCase
         self::assertSame('/images/logo.jpg', $_SESSION['auth_storage']['picture']);
         self::assertSame(['TESTER', 'USER'], $this->storage->roles);
         self::assertSame(['TESTER', 'USER'], $_SESSION['auth_storage']['roles']);
+        /** @phpstan-ignore-next-line */
         self::assertSame('value', $this->storage->key);
         self::assertSame('value', $_SESSION['auth_storage']['key']);
     }
@@ -83,6 +84,7 @@ class AuthStorageTest extends TestCase
         self::assertFalse(isset($this->storage->name));
         self::assertFalse(isset($this->storage->picture));
         self::assertFalse(isset($this->storage->roles));
+        /** @phpstan-ignore-next-line */
         self::assertFalse(isset($this->storage->key));
         self::assertNull($_SESSION['auth_storage']);
     }

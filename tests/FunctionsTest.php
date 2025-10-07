@@ -24,8 +24,8 @@ final class FunctionsTest extends TestCase
 
         $expected = [
             'aaa' => true,
-            'ab'  => true,
             'aa'  => true,
+            'ab'  => true,
             'a'   => true,
         ];
         self::assertSame($expected, $array);

@@ -17,7 +17,7 @@ final class SwaggerUITest extends WebTestCase
     public function einErrorWirdProduziertWennSchemaFileInvalid(): void
     {
         $this->expectException(\Error::class);
-        $this->expectExceptionMessage('file_get_contents(WRONG): failed to open stream: No such file or directory');
+        $this->expectExceptionMessage('file_get_contents(WRONG): Failed to open stream: No such file or directory');
 
         $config = [
             'swagger_scheme_file' => 'WRONG',
@@ -30,7 +30,7 @@ final class SwaggerUITest extends WebTestCase
             'viewHelpers'         => [],
             'exception_handler'   => new ExceptionHandler(),
         ];
-        (new App($config));
+        new App($config);
         $view    = $this->createMock(PhpRenderer::class);
         $request = $this->createMock(ServerRequestInterface::class);
         $request->expects(self::once())->method('getRequestTarget')->willReturn('/doc');
@@ -47,11 +47,15 @@ final class SwaggerUITest extends WebTestCase
         $html = (string) $response->getBody();
         self::assertStringContainsString(
             '<title>Waglpz REST API Documentation</title>',
-            $html
+            $html,
         );
     }
 
-    /** @test */
+    /**
+     * @throws \JsonException
+     *
+     * @test
+     */
     public function schema(): void
     {
         $uri      = '/doc.json';
@@ -62,7 +66,7 @@ final class SwaggerUITest extends WebTestCase
         self::assertIsString($jsonSchemaFile);
         self::assertEquals(
             \json_decode($json, true, 512, \JSON_THROW_ON_ERROR),
-            \json_decode($jsonSchemaFile, true, 512, \JSON_THROW_ON_ERROR)
+            \json_decode($jsonSchemaFile, true, 512, \JSON_THROW_ON_ERROR),
         );
     }
 }

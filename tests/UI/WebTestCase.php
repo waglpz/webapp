@@ -21,7 +21,7 @@ abstract class WebTestCase extends TestCase
     }
 
     /** @param ?array<mixed> $replaceConfigValues */
-    public function createApp(?array $replaceConfigValues = null): App
+    public function createApp(array|null $replaceConfigValues = null): App
     {
         $_SERVER['REQUEST_SCHEME'] = 'http';
         $_SERVER['HTTP_HOST']      = 'localhost';

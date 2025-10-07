@@ -77,9 +77,7 @@ final class FirewallTest extends TestCase
         $firewall->checkRules($request);
     }
 
-    /**
-     * @return Generator<mixed>
-     */
+    /** @return Generator<mixed> */
     public function notAllowed(): Generator
     {
         yield ['/a', ['/' => [Rollen::UNBEKANNT]], []];
@@ -152,9 +150,7 @@ final class FirewallTest extends TestCase
         ];
     }
 
-    /**
-     * @return Generator<mixed>
-     */
+    /** @return Generator<mixed> */
     public function allowed(): Generator
     {
         yield ['/a', ['/a' => [Rollen::UNBEKANNT]], [Rollen::UNBEKANNT]];

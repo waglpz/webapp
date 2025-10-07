@@ -32,7 +32,7 @@ final class APIProblemTest extends TestCase
         ];
 
         self::assertSame($expectation, $fact);
-        self::assertCount(0, $apiProblem->problems());
+        self::assertCount(0, \iterator_to_array($apiProblem->problems()));
         self::assertNull($apiProblem->problems()->getReturn());
     }
 
@@ -75,7 +75,7 @@ final class APIProblemTest extends TestCase
                 'status'  => 400,
                 'detail' => 'Attribute A is empty',
             ],
-            $apiProblem->problems()->current()->toArray()
+            $apiProblem->problems()->current()->toArray(),
         );
         $problems->next();
         self::assertSame(
@@ -85,7 +85,7 @@ final class APIProblemTest extends TestCase
                 'status'  => 400,
                 'detail' => 'Attribute B min length should be 3',
             ],
-            $problems->current()->toArray()
+            $problems->current()->toArray(),
         );
 
         $fact = $apiProblem->toArray();

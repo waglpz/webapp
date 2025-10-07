@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Waglpz\Webapp;
 
 /** @codeCoverageIgnore */
-final class CliExceptionHandler
+final readonly class CliExceptionHandler
 {
-    private ?string $logDirectory;
-
-    public function __construct(?string $logDirectory = null)
+    public function __construct(private string|null $logDirectory = null)
     {
-        $this->logDirectory = $logDirectory;
     }
 
     public function __invoke(\Throwable $exception): void
@@ -31,7 +28,7 @@ final class CliExceptionHandler
             . $exception->getTraceAsString() . \PHP_EOL
             . $date . ' [SERVER] ' . \preg_replace('#\s+#', ' ', \print_r($_SERVER, true)) . \PHP_EOL
             . $date . ' [INPUT] ' . $input . \PHP_EOL,
-            \FILE_APPEND
+            \FILE_APPEND,
         );
     }
 }

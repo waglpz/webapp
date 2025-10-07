@@ -22,6 +22,7 @@ final class AppHandledRequestTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->config = [
             'router'            => static fn () => null,
             'view'              => [
@@ -40,11 +41,8 @@ final class AppHandledRequestTest extends TestCase
     {
         $view         = $this->createMock(PhpRenderer::class);
         $handlerClass = new class ($view) {
-            public PhpRenderer $view;
-
-            public function __construct(PhpRenderer $view)
+            public function __construct(public PhpRenderer $view)
             {
-                $this->view = $view;
             }
 
             public function __invoke(ServerRequestInterface $request): ResponseInterface
@@ -61,9 +59,9 @@ final class AppHandledRequestTest extends TestCase
             ->willReturn(
                 [
                     0 => Dispatcher::FOUND,
-                    1 => \get_class($handlerClass),
+                    1 => $handlerClass::class,
                     2 => ['rp' => 'abc'],
-                ]
+                ],
             );
 
         $request = $this->createMock(ServerRequestInterface::class);
@@ -84,7 +82,7 @@ final class AppHandledRequestTest extends TestCase
         $this->expectException(\Error::class);
         $this->expectExceptionCode(405);
         $this->expectExceptionMessage(
-            'Leider angefragte HTTP Method "GET" nicht erlaubt. Erlaubt sind "POST".'
+            'Leider angefragte HTTP Method "GET" nicht erlaubt. Erlaubt sind "POST".',
         );
 
         $view       = $this->createMock(PhpRenderer::class);
@@ -97,7 +95,7 @@ final class AppHandledRequestTest extends TestCase
                 [
                     0 => Dispatcher::METHOD_NOT_ALLOWED,
                     1 => ['POST'],
-                ]
+                ],
             );
 
         $request = $this->createMock(ServerRequestInterface::class);

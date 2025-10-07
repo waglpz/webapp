@@ -49,7 +49,7 @@ final class APIFetchResultTest extends TestCase
 
         $this->expectException(\BadMethodCallException::class);
         $this->expectExceptionMessage(
-            'Method should not called in contexts where status not corresponding to a Api problem.'
+            'Method should not called in contexts where status not corresponding to a Api problem.',
         );
 
         $apiResult->apiProblem();
@@ -89,7 +89,7 @@ final class APIFetchResultTest extends TestCase
                 'status' => $responseOkStatusCode,
                 'detail' => 'wrong data',
             ],
-            $apiProblem
+            $apiProblem,
         );
     }
 
@@ -125,7 +125,7 @@ final class APIFetchResultTest extends TestCase
                 'status' => 0,
                 'detail' => '',
             ],
-            $apiProblem
+            $apiProblem,
         );
     }
 }

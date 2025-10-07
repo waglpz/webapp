@@ -35,7 +35,7 @@ final class AppErrorHandleTest extends TestCase
         $dispatcher = $this->createMock(Dispatcher::class);
         $dispatcher->expects(self::never())->method('dispatch');
         $emitter = $this->createMock(EmitterInterface::class);
-        (new App($config, $dispatcher, $view, $emitter));
+        new App($config, $dispatcher, $view, $emitter);
         \trigger_error('Test Error');
     }
 
@@ -46,8 +46,8 @@ final class AppErrorHandleTest extends TestCase
         $this->expectExceptionMessage(
             \sprintf(
                 'Ungültige Exception Handler Class, erwartet "%s"',
-                ExceptionHandler::class
-            )
+                ExceptionHandler::class,
+            ),
         );
 
         $config     = [
@@ -65,7 +65,7 @@ final class AppErrorHandleTest extends TestCase
         $dispatcher = $this->createMock(Dispatcher::class);
         $dispatcher->expects(self::never())->method('dispatch');
         $emitter = $this->createMock(EmitterInterface::class);
-        (new App($config, $dispatcher, $view, $emitter));
+        new App($config, $dispatcher, $view, $emitter);
     }
 
     /** @test */

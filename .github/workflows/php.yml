@@ -17,18 +17,10 @@ jobs:
     - name: Validate composer.json and composer.lock
       run: composer validate
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v2
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.3'
         coverage: pcov
         tools: composer:v2
 
@@ -36,13 +28,5 @@ jobs:
 #      if: steps.composer-cache.outputs.cache-hit != 'true'
       run: composer install --prefer-dist --no-progress --no-suggest
 
-
-
-    - name: Run Code style check
-      run: composer run-script waglpz:cs-check
-      
-    - name: Run Static analyser check
-      run: composer run-script waglpz:analyse
-      
-    - name: Run Unit tests
-      run: composer run-script waglpz:test
+    - name: Run vitality check
+      run: composer run-script waglpz:check:ci

@@ -7,9 +7,7 @@ namespace Waglpz\Webapp;
 use Aura\Sql\ExtendedPdo;
 use Aura\Sql\ExtendedPdoInterface;
 
-/**
- * @codeCoverageIgnore
- */
+/** @codeCoverageIgnore */
 trait DbConnection
 {
     private ExtendedPdoInterface $connection;
@@ -45,7 +43,7 @@ trait DbConnection
             $password,
             $options,
             $queries,
-            $profiler
+            $profiler,
         );
     }
 }

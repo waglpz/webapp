@@ -24,15 +24,13 @@ final class App
     private EmitterInterface $emitter;
     private Firewalled $firewall;
 
-    /**
-     * @param array<mixed> $config
-     */
+    /** @param array<mixed> $config */
     public function __construct(
         array $config,
-        ?Dispatcher $dispatcher = null,
-        ?PhpRenderer $renderer = null,
-        ?EmitterInterface $emitter = null,
-        ?Firewalled $firewall = null
+        Dispatcher|null $dispatcher = null,
+        PhpRenderer|null $renderer = null,
+        EmitterInterface|null $emitter = null,
+        Firewalled|null $firewall = null,
     ) {
         self::$config  = $config;
         $this->emitter = $emitter ?? new Emitter();
@@ -42,7 +40,7 @@ final class App
             \set_error_handler(
                 static function ($errorCode, string $errorMessage): bool {
                     throw new \Error($errorMessage, 500);
-                }
+                },
             );
 
             $exceptionHandlerClass = self::getConfig('exception_handler');
@@ -52,8 +50,8 @@ final class App
                 throw new \InvalidArgumentException(
                     \sprintf(
                         'Ungültige Exception Handler Class, erwartet "%s"',
-                        ExceptionHandler::class
-                    )
+                        ExceptionHandler::class,
+                    ),
                 );
             }
 
@@ -76,7 +74,7 @@ final class App
         $this->renderer = $renderer ?? new PhpRenderer(
             $viewConfig['templates'],
             $viewConfig['attributes'],
-            $viewConfig['layout']
+            $viewConfig['layout'],
         );
     }
 
@@ -117,7 +115,12 @@ final class App
                     }
                 }
 
-                return fn () => (new $handler($this->renderer))($request);
+                $callable = new $handler($this->renderer);
+                if (! \is_callable($callable)) {
+                    throw new \RuntimeException('Trying to invoke object but it not be a callable.');
+                }
+
+                return static fn () => $callable($request);
             }
         } elseif (\count($routeInfo) === 2) {
             [0 => $info, 1 => $allowedMethods] = $routeInfo;
@@ -126,7 +129,7 @@ final class App
                 $message = \sprintf(
                     'Leider angefragte HTTP Method "%s" nicht erlaubt. Erlaubt sind "%s".',
                     $httpMethod,
-                    \implode(',', $allowedMethods)
+                    \implode(',', $allowedMethods),
                 );
 
                 throw new \Error($message, 405);
@@ -138,8 +141,7 @@ final class App
         throw new \Error('Unbekannter Server Fehler, Router Problem', 500);
     }
 
-    /** @return mixed */
-    public static function getConfig(?string $partial = null)
+    public static function getConfig(string|null $partial = null): mixed
     {
         if ($partial !== null && ! isset(self::$config[$partial])) {
             throw new InvalidArgumentException(\sprintf('Unknown config key given "%s".', $partial));
@@ -147,7 +149,7 @@ final class App
 
         if (! isset(self::$config) || \count(self::$config) < 1) {
             throw new \RuntimeException(
-                'Application config is empty, maybe Application wasn\'t properly instantiated.'
+                'Application config is empty, maybe Application wasn\'t properly instantiated.',
             );
         }
 

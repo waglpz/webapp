@@ -3,7 +3,7 @@
     <!-- display progress -->
     <arg value="p"/>
     <arg name="colors"/>
-
+    <exclude name="Squiz.WhiteSpace.LanguageConstructSpacing"/>
     <!-- inherit rules from: -->
     <rule ref="Doctrine">
         <exclude name="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly"/>
@@ -14,7 +14,7 @@
     <rule ref="Generic.Files.LineLength">
         <exclude-pattern>*/var/*</exclude-pattern>
     </rule>
-
+    <rule ref="Generic.WhiteSpace.LanguageConstructSpacing"/>
     <!-- Paths to check -->
     <exclude-pattern>*.js</exclude-pattern>
     <exclude-pattern>*.css</exclude-pattern>

@@ -11,8 +11,6 @@ use function Waglpz\Webapp\sortLongestKeyFirst;
 
 final class Firewall implements Firewalled
 {
-    /** @var array<string,array<string>> */
-    private array $regeln;
     /** @var array<string> */
     private array $currentRollen;
 
@@ -21,9 +19,8 @@ final class Firewall implements Firewalled
      *                                                   allowed roles
      * @param array<string>|null          $currentRollen Rollen of current user
      */
-    public function __construct(array $regeln, ?array $currentRollen = null)
+    public function __construct(private array $regeln, array|null $currentRollen = null)
     {
-        $this->regeln        = $regeln;
         $this->currentRollen = $currentRollen ?? (new AuthStorage())->roles;
     }
 

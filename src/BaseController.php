@@ -11,11 +11,8 @@ use Slim\Views\PhpRenderer;
 
 abstract class BaseController
 {
-    private PhpRenderer $view;
-
-    public function __construct(PhpRenderer $view)
+    public function __construct(private readonly PhpRenderer $view)
     {
-        $this->view = $view;
     }
 
     abstract public function __invoke(ServerRequestInterface $request): ResponseInterface;
@@ -40,7 +37,7 @@ abstract class BaseController
             if (\is_array($postData)) {
                 return \array_replace_recursive(
                     $postData,
-                    $getData
+                    $getData,
                 );
             }
         }
@@ -52,7 +49,7 @@ abstract class BaseController
     public function render(
         array $data = [],
         int $httpResponseStatus = 200,
-        ?string $template = null
+        string|null $template = null,
     ): ResponseInterface {
         $classNameAsArray = \explode('\\', static::class);
         $className        = \end($classNameAsArray);
@@ -68,13 +65,15 @@ abstract class BaseController
 
     /**
      * @param ?array<mixed> $data
+     *
+     * @throws \JsonException
      */
-    protected function renderJson(?array $data, int $httpResponseStatus = 200): ResponseInterface
+    protected function renderJson(array|null $data, int $httpResponseStatus = 200): ResponseInterface
     {
         $this->disableLayout();
         $jsonString = \json_encode(
             $data,
-            \JSON_PRETTY_PRINT | \JSON_ERROR_INVALID_PROPERTY_NAME | \JSON_THROW_ON_ERROR
+            \JSON_PRETTY_PRINT | \JSON_ERROR_INVALID_PROPERTY_NAME | \JSON_THROW_ON_ERROR,
         );
 
         $response = (new Response($httpResponseStatus))->withHeader('content-type', 'application/json');
@@ -88,7 +87,7 @@ abstract class BaseController
         $this->view->setLayout('');
     }
 
-    public function renderError(string $message, ?string $trace, int $code): ResponseInterface
+    public function renderError(string $message, string|null $trace, int $code): ResponseInterface
     {
         $response = new Response($code);
         $this->disableLayout();
@@ -98,7 +97,7 @@ abstract class BaseController
             [
                 'message' => $message,
                 'trace'   => \APP_ENV === 'dev' ? $trace : 'Error Trace ist ausgeschaltet.',
-            ]
+            ],
         );
 
         return $response;

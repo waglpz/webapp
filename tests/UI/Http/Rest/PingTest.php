@@ -8,7 +8,11 @@ use Waglpz\Webapp\Tests\UI\RestTestCase;
 
 final class PingTest extends RestTestCase
 {
-    /** @test */
+    /**
+     * @throws \JsonException
+     *
+     * @test
+     */
     public function pingDerGesundheit(): void
     {
         $uri      = '/api/ping';

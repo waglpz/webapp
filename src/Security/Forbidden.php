@@ -12,7 +12,7 @@ final class Forbidden extends Exception
     /** @codingStandardsIgnoreStart */
     /** @var string */
     protected $message = 'Unberechtigt';
-    /** @var int */
+    /** @var int|mixed */
     protected $code       = 403;
     /** @codingStandardsIgnoreEnd */
 }

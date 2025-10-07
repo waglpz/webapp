@@ -16,6 +16,7 @@ final class AppConfigTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->config = [
             'router'            => static fn () => null,
             'view'              => [
@@ -34,7 +35,7 @@ final class AppConfigTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage(
-            'Application config is empty, maybe Application wasn\'t properly instantiated.'
+            'Application config is empty, maybe Application wasn\'t properly instantiated.',
         );
         App::getConfig();
     }
@@ -44,7 +45,7 @@ final class AppConfigTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Unknown config key given "key".');
-        (new App($this->config));
+        new App($this->config);
         App::getConfig('key');
     }
 
@@ -53,7 +54,7 @@ final class AppConfigTest extends TestCase
     {
         $config        = $this->config;
         $config['key'] = 'value';
-        (new App($config));
+        new App($config);
         $configByKey = App::getConfig('key');
         self::assertSame('value', $configByKey);
     }
@@ -61,7 +62,7 @@ final class AppConfigTest extends TestCase
     /** @test */
     public function holenConfig(): void
     {
-        (new App($this->config));
+        new App($this->config);
         $factConfig = App::getConfig();
         self::assertSame($this->config, $factConfig);
     }

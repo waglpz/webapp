@@ -83,7 +83,7 @@ final class BaseControllerTest extends TestCase
                  [
                      'message' => 'Error message',
                      'trace'   => 'Error Trace ist ausgeschaltet.',
-                 ]
+                 ],
              )->willReturnArgument(0);
         $baseController = new class ($view) extends BaseController {
             public function __invoke(ServerRequestInterface $request): ResponseInterface

@@ -12,12 +12,11 @@ use Waglpz\Webapp\Security\Rollen;
  * @property string        $email
  * @property string        $id
  * @property ?string       $name    = null
- * @property ?string        $picture = null
+ * @property ?string       $picture = null
  */
 final class AuthStorage
 {
-    /** @return mixed */
-    public function __get(string $name)
+    public function __get(string $name): mixed
     {
         if ($this->__isset($name)) {
             return $_SESSION['auth_storage'][$name];
@@ -43,8 +42,7 @@ final class AuthStorage
         throw new InvalidArgumentException($message);
     }
 
-    /** @param mixed $data */
-    public function __set(string $name, $data): void
+    public function __set(string $name, mixed $data): void
     {
         /** @noinspection NotOptimalIfConditionsInspection */
         if ($this->__isset($name) && $_SESSION['auth_storage'][$name] !== $data) {

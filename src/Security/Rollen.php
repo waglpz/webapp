@@ -6,6 +6,6 @@ namespace Waglpz\Webapp\Security;
 
 final class Rollen
 {
-    public const UNBEKANNT   = 'ROLLE_UNBEKANNT';
-    public const SUPER_ADMIN = 'ROLLE_SUPER_ADMIN';
+    public const string UNBEKANNT   = 'ROLLE_UNBEKANNT';
+    public const string SUPER_ADMIN = 'ROLLE_SUPER_ADMIN';
 }

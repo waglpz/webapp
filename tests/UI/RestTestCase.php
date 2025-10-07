@@ -7,7 +7,6 @@ namespace Waglpz\Webapp\Tests\UI;
 use Aidphp\Http\ServerRequest;
 use Aidphp\Http\Stream;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 abstract class RestTestCase extends WebTestCase
 {
@@ -22,7 +21,7 @@ abstract class RestTestCase extends WebTestCase
         return $response;
     }
 
-    protected function restPostResponse(string $uri, ?string $body = null): ResponseInterface
+    protected function restPostResponse(string $uri, string|null $body = null): ResponseInterface
     {
         $app     = $this->createApp();
         $request = new ServerRequest('POST', $uri, ['content-type' => 'application/json']);
@@ -31,7 +30,6 @@ abstract class RestTestCase extends WebTestCase
             $stream = new Stream(\fopen('php://temp', 'wb+'));
             $stream->write($body);
             $request = $request->withBody($stream);
-            \assert($request instanceof ServerRequestInterface);
             $request->getBody()->rewind();
         }
 

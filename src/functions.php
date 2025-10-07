@@ -35,7 +35,7 @@ if (! \function_exists('Waglpz\Webapp\version')) {
         }
 
         $version = \exec('git describe --always');
-        /** @phpstan-var string|bool $version */
+        /** @phpstan-var string|false $version */
         if (! \is_string($version)) {
             throw new \RuntimeException('Could not gatter version from git history');
         }
@@ -45,9 +45,7 @@ if (! \function_exists('Waglpz\Webapp\version')) {
 }
 
 if (! \function_exists('Waglpz\Webapp\sortLongestKeyFirst')) {
-    /**
-     * @param array<string,mixed> $assocArray
-     */
+    /** @param array<string,mixed> $assocArray */
     function sortLongestKeyFirst(array &$assocArray): void
     {
         \uksort(
@@ -62,7 +60,7 @@ if (! \function_exists('Waglpz\Webapp\sortLongestKeyFirst')) {
                 }
 
                 return 0;
-            }
+            },
         );
     }
 }

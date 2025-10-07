@@ -1,14 +1,19 @@
-FROM olekhy/webapp
+FROM waglpz/vwd-base:8.3-apache
 
 ARG APPUID=0
 ARG APPUGID=0
+ARG DUSER=www-data
 
-ENV COMPOSER_HOME /var/www/composer
+RUN apt-get update && apt-get install -y curl unzip \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN if [ ${APPUID} != 0 ];                           \
-    then                                             \
-        groupadd -g ${APPUGID} waglpz;               \
-        useradd -r -l -u ${APPUID} -g waglpz waglpz; \
-        chown -R waglpz:waglpz $COMPOSER_HOME;       \
+RUN composer --version
+
+RUN if [ "${APPUID}" != "0" ] && getent passwd "${DUSER}" comp> /dev/null; then \
+        userdel -f "${DUSER}";               \
+        if getent group "${DUSER}" > /dev/null; then \
+            groupdel "${DUSER}";             \
+        fi;                                  \
+        groupadd -g "${APPUGID}" "${DUSER}"; \
+        useradd -l -u "${APPUID}" -g "${DUSER}" "${DUSER}"; \
     fi
-

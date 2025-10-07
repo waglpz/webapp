@@ -13,6 +13,6 @@ return static function (RouteCollector $router): void {
         '/api',
         static function (RouteCollector $routeCollector): void {
             $routeCollector->get('/ping', Ping::class);
-        }
+        },
     );
 };

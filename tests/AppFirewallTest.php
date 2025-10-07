@@ -21,6 +21,7 @@ final class AppFirewallTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->config = [
             'router'            => static fn (RouteCollector $router) => $router->get(
                 '/',
@@ -30,8 +31,8 @@ final class AppFirewallTest extends TestCase
                         {
                             return new Response();
                         }
-                    }
-                )
+                    },
+                ),
             ),
             'view'              => [
                 'view_helper_factory' => \stdClass::class,
@@ -62,7 +63,7 @@ final class AppFirewallTest extends TestCase
             null,
             null,
             null,
-            $firewall
+            $firewall,
         ))->run($request);
     }
 }
